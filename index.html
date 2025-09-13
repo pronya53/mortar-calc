@@ -90,19 +90,107 @@
         #layer-control {
             position: fixed;
             top: 20px;
-            right: 20px;
+            right: -300px;
+            width: 200px;
             background-color: rgba(255, 255, 255, 0.95);
             padding: 10px;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            transition: right 0.3s ease;
             z-index: 1000;
+        }
+        #layer-control.active {
+            right: 20px;
+        }
+        #device-selector {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 1000;
+        }
+        #device-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #333;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #device-options {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+        }
+        #device-options button {
+            padding: 8px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #mobile-buttons {
+            display: none;
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 1000;
+        }
+        .mobile-btn {
+            padding: 10px 20px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .close-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #333;
         }
         @media (max-width: 600px) {
             #controls {
-                width: 200px;
+                width: 90vw;
+                left: -100vw;
             }
             #controls.active {
+                left: 5%;
+            }
+            #layer-control {
+                width: 90vw;
+                right: -100vw;
+            }
+            #layer-control.active {
+                right: 5%;
+            }
+            #menu {
+                top: 10px;
                 left: 10px;
+            }
+            #device-selector {
+                bottom: 10px;
+                right: 10px;
+            }
+            #mobile-buttons {
+                bottom: 60px;
+                right: 10px;
             }
         }
     </style>
@@ -110,10 +198,12 @@
 <body>
     <div id="map"></div>
     <div id="menu">
-        <button class="menu-btn" onclick="toggleControls()" title="Открыть настройки">&#9881;</button>
+        <button class="menu-btn" onclick="toggleControls()" title="Открыть/Закрыть настройки">&#9881;</button>
+        <button class="menu-btn" onclick="toggleLayerControl()" title="Открыть/Закрыть слой карты">&#9776;</button>
         <button class="menu-btn" onclick="clearMap()" title="Очистить карту">&#10006;</button>
     </div>
     <div id="controls">
+        <button class="close-btn" onclick="toggleControls()">&times;</button>
         <label for="mortar">Тип оружия:</label>
         <select id="mortar">
             <option value="ua">UA (US M821 HE 81mm)</option>
@@ -126,12 +216,24 @@
         <div id="result"></div>
     </div>
     <div id="layer-control">
+        <button class="close-btn" onclick="toggleLayerControl()">&times;</button>
         <label for="layer">Слой карты:</label>
         <select id="layer" onchange="changeLayer()">
             <option value="udache">Удачное (PNG)</option>
             <option value="osm">Топографическая (OSM)</option>
             <option value="satellite">Спутник (Esri)</option>
         </select>
+    </div>
+    <div id="device-selector">
+        <button id="device-btn" onclick="toggleDeviceOptions()" title="Выбор устройства">&#128241;</button>
+        <div id="device-options">
+            <button onclick="setDevice('pc')">ПК</button>
+            <button onclick="setDevice('mobile')">Телефон</button>
+        </div>
+    </div>
+    <div id="mobile-buttons">
+        <button class="mobile-btn" onclick="activateMode('mortar')">Поставить миномет</button>
+        <button class="mobile-btn" onclick="activateMode('target')">Поставить цель</button>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -233,22 +335,72 @@
             return null;
         }
 
-        // Обработчики событий карты
-        map.on('contextmenu', (e) => {
+        // Режим устройства
+        let deviceMode = 'pc'; // По умолчанию ПК
+        let activeMode = null; // Для мобильного: 'mortar' или 'target'
+
+        // Обработчики для ПК по умолчанию
+        function setupPcHandlers() {
+            map.on('contextmenu', placeMortar);
+            map.on('click', placeTarget);
+        }
+
+        function placeMortar(e) {
             if (mortarMarker) map.removeLayer(mortarMarker);
             mortarMarker = L.marker(e.latlng, { draggable: true, icon: L.divIcon({ className: 'mortar-icon', html: '<div style="background:red;width:10px;height:10px;border-radius:50%;"></div>' }) }).addTo(map);
             mortarMarker.bindPopup('Миномет').openPopup();
             mortarMarker.on('dragend', calculateFromMap);
             calculateFromMap();
-        });
+        }
 
-        map.on('click', (e) => {
+        function placeTarget(e) {
             if (targetMarker) map.removeLayer(targetMarker);
             targetMarker = L.marker(e.latlng, { draggable: true, icon: L.divIcon({ className: 'target-icon', html: '<div style="background:blue;width:10px;height:10px;border-radius:50%;"></div>' }) }).addTo(map);
             targetMarker.bindPopup('Цель').openPopup();
             targetMarker.on('dragend', calculateFromMap);
             calculateFromMap();
-        });
+        }
+
+        // Для мобильного
+        function setupMobileHandlers() {
+            map.off('contextmenu', placeMortar);
+            map.off('click', placeTarget);
+            map.on('click', handleMobileClick);
+        }
+
+        function handleMobileClick(e) {
+            if (activeMode === 'mortar') {
+                placeMortar(e);
+                activeMode = null;
+            } else if (activeMode === 'target') {
+                placeTarget(e);
+                activeMode = null;
+            }
+        }
+
+        function activateMode(mode) {
+            activeMode = mode;
+        }
+
+        function setDevice(mode) {
+            deviceMode = mode;
+            document.getElementById('device-options').style.display = 'none';
+            if (mode === 'mobile') {
+                document.getElementById('mobile-buttons').style.display = 'flex';
+                setupMobileHandlers();
+            } else {
+                document.getElementById('mobile-buttons').style.display = 'none';
+                setupPcHandlers();
+            }
+        }
+
+        function toggleDeviceOptions() {
+            const options = document.getElementById('device-options');
+            options.style.display = options.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        // Изначальная настройка
+        setupPcHandlers();
 
         function calculateFromMap() {
             if (!mortarMarker || !targetMarker) return;
@@ -321,6 +473,11 @@
         function toggleControls() {
             const controls = document.getElementById('controls');
             controls.classList.toggle('active');
+        }
+
+        function toggleLayerControl() {
+            const layerControl = document.getElementById('layer-control');
+            layerControl.classList.toggle('active');
         }
 
         // Установка начального вида
