@@ -224,6 +224,84 @@
                 right: 10px;
             }
         }
+        /* Info Panel Styles */
+        #info-panel {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            max-width: 500px;
+            max-height: 80%;
+            overflow-y: auto;
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            z-index: 2000;
+        }
+        #info-panel.active {
+            display: block;
+        }
+        #info-panel h2 {
+            margin-top: 0;
+        }
+        #info-panel ul {
+            padding-left: 20px;
+        }
+        #info-panel button {
+            background-color: #333;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: background-color 0.3s;
+        }
+        #info-panel button:hover {
+            background-color: #555;
+        }
+        #credits {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            color: #666;
+            z-index: 1000;
+            text-align: center;
+        }
+        #language-control {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 20px;
+            height: 20px;
+            background: none;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.3s;
+        }
+        .close-btn:hover {
+            color: #555;
+        }
     </style>
 </head>
 <body>
@@ -231,34 +309,43 @@
     <div id="menu">
         <button class="menu-btn" onclick="toggleControls()" title="Открыть настройки">&#9881;</button>
         <button class="menu-btn" onclick="clearMap()" title="Очистить карту"><i class="fas fa-trash"></i></button>
+        <button class="menu-btn" onclick="toggleInfo()" title="Информация"><i class="fas fa-info-circle"></i></button>
     </div>
     <div id="controls">
         <button class="close-btn" onclick="toggleControls()">&times;</button>
-        <label for="mortar">Тип оружия:</label>
+        <label for="mortar" id="mortar-label">Тип оружия:</label>
         <select id="mortar">
             <option value="ua">UA (US M821 HE 81mm)</option>
             <option value="ru">RU (О-832Д 82mm)</option>
             <option value="grad">BM-21 Grad (122mm)</option>
         </select>
-        <label for="distance">Ручное расстояние (м, опционально):</label>
+        <label for="distance" id="distance-label">Ручное расстояние (м, опционально):</label>
         <input type="number" id="distance" min="0" placeholder="например, 1350">
-        <button onclick="calculateManual()">Рассчитать вручную</button>
+        <button id="calculate-manual-btn" onclick="calculateManual()">Рассчитать вручную</button>
         <div id="result"></div>
     </div>
     <div id="layer-control">
-        <label for="layer">Выбор карты:</label>
+        <label for="layer" id="layer-label">Выбор карты:</label>
         <select id="layer" onchange="changeLayer()">
             <option value="udache">Удачное</option>
             <option value="osm">Сергеевка</option>
             <option value="satellite">Донецкий Аэропорт</option>
         </select>
     </div>
+    <div id="language-control">
+        <label for="language" id="language-label">Язык:</label>
+        <select id="language" onchange="changeLanguage()">
+            <option value="ru">Русский</option>
+            <option value="uk">Українська</option>
+            <option value="en">English</option>
+        </select>
+    </div>
     <div id="device-selector">
         <button id="device-btn" onclick="toggleDeviceOptions()" title="Выбор устройства">&#128241;</button>
         <div id="device-options">
             <button class="close-btn" onclick="toggleDeviceOptions()">&times;</button>
-            <button onclick="setDevice('pc')">ПК</button>
-            <button onclick="setDevice('mobile')">Телефон</button>
+            <button id="pc-btn" onclick="setDevice('pc')">ПК</button>
+            <button id="mobile-btn" onclick="setDevice('mobile')">Телефон</button>
         </div>
     </div>
     <div id="mobile-buttons">
@@ -266,9 +353,262 @@
         <button class="mobile-btn" id="mortar-btn" onclick="activateMode('mortar')">Поставить миномёт</button>
         <button class="mobile-btn" id="target-btn" onclick="activateMode('target')">Поставить цель</button>
     </div>
+    <div id="info-panel">
+        <button class="close-btn" onclick="toggleInfo()">&times;</button>
+        <h2 id="info-title">Информация</h2>
+        <div id="info-text">
+            <h3>Как использовать:</h3>
+            <ul>
+                <li>Выберите тип оружия в настройках.</li>
+                <li>На ПК: Правый клик - поставить миномет (красный маркер), левый клик - поставить цель (синий маркер).</li>
+                <li>На мобильном: Выберите режим (миномет или цель) и кликните на карту.</li>
+                <li>Перетаскивайте маркеры для корректировки.</li>
+                <li>Используйте ручной ввод расстояния для расчета без карты.</li>
+                <li>Смените карту в выборе слоя.</li>
+            </ul>
+            <p>Расчеты основаны на таблицах для указанных боеприпасов.</p>
+            <p><strong>Автор:</strong> PRONEDROG</p>
+            <p><strong>Данные карт предоставлены:</strong> Conflict In Europe</p>
+        </div>
+    </div>
+    <div id="credits">
+        Powered by PRONEDROG | За поддержкой Conflict In Europe
+    </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
+        // Language data
+        const translations = {
+            ru: {
+                title: 'Калькулятор миномета с картой Удачное',
+                mortarLabel: 'Тип оружия:',
+                mortarOptions: {
+                    ua: 'UA (US M821 HE 81mm)',
+                    ru: 'RU (О-832Д 82mm)',
+                    grad: 'BM-21 Grad (122mm)'
+                },
+                distanceLabel: 'Ручное расстояние (м, опционально):',
+                calculateManualBtn: 'Рассчитать вручную',
+                layerLabel: 'Выбор карты:',
+                layerOptions: {
+                    udache: 'Удачное',
+                    osm: 'Сергеевка',
+                    satellite: 'Донецкий Аэропорт'
+                },
+                languageLabel: 'Язык:',
+                languageOptions: {
+                    ru: 'Русский',
+                    uk: 'Українська',
+                    en: 'English'
+                },
+                deviceBtnTitle: 'Выбор устройства',
+                pcBtn: 'ПК',
+                mobileBtn: 'Телефон',
+                mortarBtn: 'Поставить миномёт',
+                targetBtn: 'Поставить цель',
+                mortarPopup: 'Миномет',
+                targetPopup: 'Цель',
+                infoTitle: 'Информация',
+                infoText: `
+                    <h3>Как использовать:</h3>
+                    <ul>
+                        <li>Выберите тип оружия в настройках.</li>
+                        <li>На ПК: Правый клик - поставить миномет (красный маркер), левый клик - поставить цель (синий маркер).</li>
+                        <li>На мобильном: Выберите режим (миномет или цель) и кликните на карту.</li>
+                        <li>Перетаскивайте маркеры для корректировки.</li>
+                        <li>Используйте ручной ввод расстояния для расчета без карты.</li>
+                        <li>Смените карту в выборе слоя.</li>
+                    </ul>
+                    <p>Расчеты основаны на таблицах для указанных боеприпасов.</p>
+                    <p><strong>Автор:</strong> PRONEDROG</p>
+                    <p><strong>Данные карт предоставлены:</strong> Conflict In Europe</p>
+                `,
+                closeBtn: 'Закрыть',
+                clearMapTitle: 'Очистить карту',
+                settingsTitle: 'Открыть настройки',
+                infoBtnTitle: 'Информация',
+                rangeText: 'Расстояние: ',
+                azimuthText: 'Азимут: ',
+                elevationText: 'Угол возвышения: ',
+                outOfRange: 'Вне диапазона!',
+                manualRange: 'Ручное расстояние: ',
+                credits: 'Powered by PRONEDROG | За поддержкой Conflict In Europe'
+            },
+            uk: {
+                title: 'Калькулятор міномета з картою Удачне',
+                mortarLabel: 'Тип зброї:',
+                mortarOptions: {
+                    ua: 'UA (US M821 HE 81mm)',
+                    ru: 'RU (О-832Д 82mm)',
+                    grad: 'BM-21 Grad (122mm)'
+                },
+                distanceLabel: 'Ручна відстань (м, опціонально):',
+                calculateManualBtn: 'Розрахувати вручну',
+                layerLabel: 'Вибір карти:',
+                layerOptions: {
+                    udache: 'Удачне',
+                    osm: 'Сергеївка',
+                    satellite: 'Донецький Аеропорт'
+                },
+                languageLabel: 'Мова:',
+                languageOptions: {
+                    ru: 'Російська',
+                    uk: 'Українська',
+                    en: 'English'
+                },
+                deviceBtnTitle: 'Вибір пристрою',
+                pcBtn: 'ПК',
+                mobileBtn: 'Телефон',
+                mortarBtn: 'Поставити міномет',
+                targetBtn: 'Поставити ціль',
+                mortarPopup: 'Міномет',
+                targetPopup: 'Ціль',
+                infoTitle: 'Інформація',
+                infoText: `
+                    <h3>Як використовувати:</h3>
+                    <ul>
+                        <li>Виберіть тип зброї в налаштуваннях.</li>
+                        <li>На ПК: Правий клік - поставити міномет (червоний маркер), лівий клік - поставити ціль (синій маркер).</li>
+                        <li>На мобільному: Виберіть режим (міномет або ціль) і клікніть на карту.</li>
+                        <li>Перетягуйте маркери для коригування.</li>
+                        <li>Використовуйте ручний ввід відстані для розрахунку без карти.</li>
+                        <li>Змініть карту у виборі шару.</li>
+                    </ul>
+                    <p>Розрахунки базуються на таблицях для вказаних боєприпасів.</p>
+                    <p><strong>Автор:</strong> PRONEDROG</p>
+                    <p><strong>Дані карт надано:</strong> Conflict In Europe</p>
+                `,
+                closeBtn: 'Закрити',
+                clearMapTitle: 'Очистити карту',
+                settingsTitle: 'Відкрити налаштування',
+                infoBtnTitle: 'Інформація',
+                rangeText: 'Відстань: ',
+                azimuthText: 'Азимут: ',
+                elevationText: 'Кут піднесення: ',
+                outOfRange: 'Поза діапазоном!',
+                manualRange: 'Ручна відстань: ',
+                credits: 'Powered by PRONEDROG | За підтримки Conflict In Europe'
+            },
+            en: {
+                title: 'Mortar Calculator with Udachne Map',
+                mortarLabel: 'Weapon Type:',
+                mortarOptions: {
+                    ua: 'UA (US M821 HE 81mm)',
+                    ru: 'RU (О-832Д 82mm)',
+                    grad: 'BM-21 Grad (122mm)'
+                },
+                distanceLabel: 'Manual Distance (m, optional):',
+                calculateManualBtn: 'Calculate Manually',
+                layerLabel: 'Map Selection:',
+                layerOptions: {
+                    udache: 'Udachne',
+                    osm: 'Sergeevka',
+                    satellite: 'Donetsk Airport'
+                },
+                languageLabel: 'Language:',
+                languageOptions: {
+                    ru: 'Russian',
+                    uk: 'Ukrainian',
+                    en: 'English'
+                },
+                deviceBtnTitle: 'Device Selection',
+                pcBtn: 'PC',
+                mobileBtn: 'Mobile',
+                mortarBtn: 'Place Mortar',
+                targetBtn: 'Place Target',
+                mortarPopup: 'Mortar',
+                targetPopup: 'Target',
+                infoTitle: 'Information',
+                infoText: `
+                    <h3>How to Use:</h3>
+                    <ul>
+                        <li>Select weapon type in settings.</li>
+                        <li>On PC: Right-click to place mortar (red marker), left-click to place target (blue marker).</li>
+                        <li>On mobile: Select mode (mortar or target) and click on map.</li>
+                        <li>Drag markers to adjust.</li>
+                        <li>Use manual distance input for calculation without map.</li>
+                        <li>Change map in layer selection.</li>
+                    </ul>
+                    <p>Calculations based on tables for specified ammunition.</p>
+                    <p><strong>Author:</strong> PRONEDROG</p>
+                    <p><strong>Map Data Provided by:</strong> Conflict In Europe</p>
+                `,
+                closeBtn: 'Close',
+                clearMapTitle: 'Clear Map',
+                settingsTitle: 'Open Settings',
+                infoBtnTitle: 'Information',
+                rangeText: 'Distance: ',
+                azimuthText: 'Azimuth: ',
+                elevationText: 'Elevation Angle: ',
+                outOfRange: 'Out of Range!',
+                manualRange: 'Manual Distance: ',
+                credits: 'Powered by PRONEDROG | Supported by Conflict In Europe'
+            }
+        };
+
+        let currentLang = 'ru';
+
+        function changeLanguage() {
+            currentLang = document.getElementById('language').value;
+            updateTexts();
+            document.title = translations[currentLang].title;
+            updateLayerOptions();
+            updateMortarOptions();
+            updateInfoPanel();
+            document.getElementById('distance').placeholder = currentLang === 'ru' ? 'например, 1350' : (currentLang === 'uk' ? 'наприклад, 1350' : 'e.g., 1350');
+        }
+
+        function updateTexts() {
+            const t = translations[currentLang];
+            document.getElementById('mortar-label').textContent = t.mortarLabel;
+            document.getElementById('distance-label').textContent = t.distanceLabel;
+            document.getElementById('calculate-manual-btn').textContent = t.calculateManualBtn;
+            document.getElementById('layer-label').textContent = t.layerLabel;
+            document.getElementById('language-label').textContent = t.languageLabel;
+            document.getElementById('pc-btn').textContent = t.pcBtn;
+            document.getElementById('mobile-btn').textContent = t.mobileBtn;
+            document.getElementById('mortar-btn').textContent = t.mortarBtn;
+            document.getElementById('target-btn').textContent = t.targetBtn;
+            document.getElementById('device-btn').title = t.deviceBtnTitle;
+            document.querySelector('.menu-btn:nth-child(2)').title = t.clearMapTitle;
+            document.querySelector('.menu-btn:nth-child(1)').title = t.settingsTitle;
+            document.querySelector('.menu-btn:nth-child(3)').title = t.infoBtnTitle;
+            document.getElementById('credits').textContent = t.credits;
+            if (mortarMarker) mortarMarker.bindPopup(t.mortarPopup);
+            if (targetMarker) targetMarker.bindPopup(t.targetPopup);
+        }
+
+        function updateLayerOptions() {
+            const t = translations[currentLang];
+            const select = document.getElementById('layer');
+            select.options[0].text = t.layerOptions.udache;
+            select.options[1].text = t.layerOptions.osm;
+            select.options[2].text = t.layerOptions.satellite;
+        }
+
+        function updateMortarOptions() {
+            const t = translations[currentLang];
+            const select = document.getElementById('mortar');
+            select.options[0].text = t.mortarOptions.ua;
+            select.options[1].text = t.mortarOptions.ru;
+            select.options[2].text = t.mortarOptions.grad;
+        }
+
+        function updateInfoPanel() {
+            const t = translations[currentLang];
+            document.getElementById('info-title').textContent = t.infoTitle;
+            document.getElementById('info-text').innerHTML = t.infoText;
+            document.querySelector('#info-panel .close-btn').textContent = t.closeBtn;
+        }
+
+        function updateLanguageOptions() {
+            const t = translations[currentLang];
+            const select = document.getElementById('language');
+            select.options[0].text = t.languageOptions.ru;
+            select.options[1].text = t.languageOptions.uk;
+            select.options[2].text = t.languageOptions.en;
+        }
+
         // Инициализация карты с простой системой координат
         const mapWidth = 10240; // метры
         const mapHeight = 5120; // метры
@@ -310,7 +650,7 @@
             } else {
                 map.options.crs = L.CRS.EPSG3857;
                 map.setMaxBounds(null);
-                map.setView([50.45, 30.52], 12); // Центр на Киеве для OSM/Спутник
+                map.setView([50.45, 30.52], 12);
                 currentLayer = layer === 'satellite' ? satelliteLayer : osmLayer;
             }
             map.addLayer(currentLayer);
@@ -369,7 +709,7 @@
         map.on('contextmenu', (e) => {
             if (mortarMarker) map.removeLayer(mortarMarker);
             mortarMarker = L.marker(e.latlng, { draggable: true, icon: L.divIcon({ className: 'mortar-icon', html: '<div style="background:red;width:10px;height:10px;border-radius:50%;"></div>' }) }).addTo(map);
-            mortarMarker.bindPopup('Миномет').openPopup();
+            mortarMarker.bindPopup(translations[currentLang].mortarPopup).openPopup();
             mortarMarker.on('dragend', calculateFromMap);
             calculateFromMap();
         });
@@ -377,7 +717,7 @@
         map.on('click', (e) => {
             if (targetMarker) map.removeLayer(targetMarker);
             targetMarker = L.marker(e.latlng, { draggable: true, icon: L.divIcon({ className: 'target-icon', html: '<div style="background:blue;width:10px;height:10px;border-radius:50%;"></div>' }) }).addTo(map);
-            targetMarker.bindPopup('Цель').openPopup();
+            targetMarker.bindPopup(translations[currentLang].targetPopup).openPopup();
             targetMarker.on('dragend', calculateFromMap);
             calculateFromMap();
         });
@@ -414,11 +754,12 @@
                 azMils = azRuMils.toFixed(0);
             }
             let elev = interpolate(data, dist);
-            let elevText = elev !== null ? `${elev.toFixed(1)} mils` : 'Вне диапазона!';
+            let elevText = elev !== null ? `${elev.toFixed(1)} mils` : translations[currentLang].outOfRange;
+            const t = translations[currentLang];
             document.getElementById('result').innerHTML = `
-                Расстояние: ${dist.toFixed(0)} м<br>
-                Азимут: ${azDeg.toFixed(1)}° (${azMils} mils)<br>
-                Угол возвышения: ${elevText}
+                ${t.rangeText}${dist.toFixed(0)} м<br>
+                ${t.azimuthText}${azDeg.toFixed(1)}° (${azMils} mils)<br>
+                ${t.elevationText}${elevText}
             `;
         }
 
@@ -435,8 +776,9 @@
                 data = gradMortarData;
             }
             let elev = interpolate(data, dist);
-            let elevText = elev !== null ? `${elev.toFixed(1)} mils` : 'Вне диапазона!';
-            document.getElementById('result').innerHTML = `Ручное расстояние: ${dist} м | Угол возвышения: ${elevText}`;
+            let elevText = elev !== null ? `${elev.toFixed(1)} mils` : translations[currentLang].outOfRange;
+            const t = translations[currentLang];
+            document.getElementById('result').innerHTML = `${t.manualRange}${dist} м | ${t.elevationText}${elevText}`;
         }
 
         function clearMap() {
@@ -457,7 +799,6 @@
             options.classList.toggle('active');
         }
 
-        // Закрытие меню выбора устройства при клике вне
         document.addEventListener('click', (e) => {
             const deviceBtn = document.getElementById('device-btn');
             const deviceOptions = document.getElementById('device-options');
@@ -466,7 +807,11 @@
             }
         });
 
-        // Режим устройства
+        function toggleInfo() {
+            const panel = document.getElementById('info-panel');
+            panel.classList.toggle('active');
+        }
+
         let deviceMode = 'pc';
         let activeMode = null;
 
@@ -484,14 +829,14 @@
                 map.on('contextmenu', (e) => {
                     if (mortarMarker) map.removeLayer(mortarMarker);
                     mortarMarker = L.marker(e.latlng, { draggable: true, icon: L.divIcon({ className: 'mortar-icon', html: '<div style="background:red;width:10px;height:10px;border-radius:50%;"></div>' }) }).addTo(map);
-                    mortarMarker.bindPopup('Миномет').openPopup();
+                    mortarMarker.bindPopup(translations[currentLang].mortarPopup).openPopup();
                     mortarMarker.on('dragend', calculateFromMap);
                     calculateFromMap();
                 });
                 map.on('click', (e) => {
                     if (targetMarker) map.removeLayer(targetMarker);
                     targetMarker = L.marker(e.latlng, { draggable: true, icon: L.divIcon({ className: 'target-icon', html: '<div style="background:blue;width:10px;height:10px;border-radius:50%;"></div>' }) }).addTo(map);
-                    targetMarker.bindPopup('Цель').openPopup();
+                    targetMarker.bindPopup(translations[currentLang].targetPopup).openPopup();
                     targetMarker.on('dragend', calculateFromMap);
                     calculateFromMap();
                 });
@@ -516,10 +861,11 @@
         }
 
         function handleMobileClick(e) {
+            const t = translations[currentLang];
             if (activeMode === 'mortar') {
                 if (mortarMarker) map.removeLayer(mortarMarker);
                 mortarMarker = L.marker(e.latlng, { draggable: true, icon: L.divIcon({ className: 'mortar-icon', html: '<div style="background:red;width:10px;height:10px;border-radius:50%;"></div>' }) }).addTo(map);
-                mortarMarker.bindPopup('Миномет').openPopup();
+                mortarMarker.bindPopup(t.mortarPopup).openPopup();
                 mortarMarker.on('dragend', calculateFromMap);
                 calculateFromMap();
                 activeMode = null;
@@ -527,7 +873,7 @@
             } else if (activeMode === 'target') {
                 if (targetMarker) map.removeLayer(targetMarker);
                 targetMarker = L.marker(e.latlng, { draggable: true, icon: L.divIcon({ className: 'target-icon', html: '<div style="background:blue;width:10px;height:10px;border-radius:50%;"></div>' }) }).addTo(map);
-                targetMarker.bindPopup('Цель').openPopup();
+                targetMarker.bindPopup(t.targetPopup).openPopup();
                 targetMarker.on('dragend', calculateFromMap);
                 calculateFromMap();
                 activeMode = null;
@@ -535,8 +881,12 @@
             }
         }
 
-        // Установка начального вида
         map.fitBounds(udacheBounds);
+        updateTexts();
+        updateLayerOptions();
+        updateMortarOptions();
+        updateLanguageOptions();
+        updateInfoPanel();
     </script>
 </body>
 </html>
