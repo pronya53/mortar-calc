@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор миномета с картой Удачное</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            overflow: hidden;
+        }
+        #map {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+        }
+        #menu {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 1000;
+        }
+        .menu-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #333;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+        }
+        .menu-btn:hover {
+            background-color: #555;
+        }
+        #controls {
+            position: fixed;
+            top: 20px;
+            left: -300px;
+            width: 250px;
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            transition: left 0.3s ease;
+            z-index: 1000;
+        }
+        #controls.active {
+            left: 20px;
+        }
+        #controls label, #controls select, #controls input, #controls button {
+            display: block;
+            margin: 10px 0;
+            padding: 8px;
+            width: 100%;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        #controls select, #controls input {
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        #controls button {
+            background-color: #333;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        #controls button:hover {
+            background-color: #555;
+        }
+        #result {
+            margin-top: 15px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        #layer-control {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            z-index: 1000;
+        }
+        @media (max-width: 600px) {
+            #controls {
+                width: 200px;
+            }
+            #controls.active {
+                left: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <div id="menu">
+        <button class="menu-btn" onclick="toggleControls()" title="Открыть настройки">&#9881;</button>
+        <button class="menu-btn" onclick="clearMap()" title="Очистить карту">&#10006;</button>
+    </div>
+    <div id="controls">
+        <label for="mortar">Тип оружия:</label>
+        <select id="mortar">
+            <option value="ua">UA (US M821 HE 81mm)</option>
+            <option value="ru">RU (О-832Д 82mm)</option>
+            <option value="grad">BM-21 Grad (122mm)</option>
+        </select>
+        <label for="distance">Ручное расстояние (м, опционально):</label>
+        <input type="number" id="distance" min="0" placeholder="например, 1350">
+        <button onclick="calculateManual()">Рассчитать вручную</button>
+        <div id="result"></div>
+    </div>
+    <div id="layer-control">
+        <label for="layer">Слой карты:</label>
+        <select id="layer" onchange="changeLayer()">
+            <option value="udache">Удачное (PNG)</option>
+            <option value="osm">Топографическая (OSM)</option>
+            <option value="satellite">Спутник (Esri)</option>
+        </select>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Инициализация карты с простой системой координат
+        const mapWidth = 10240; // метры
+        const mapHeight = 5120; // метры
+        const map = L.map('map', {
+            crs: L.CRS.Simple,
+            minZoom: -2,
+            maxZoom: 2,
+            zoom: -1,
+            center: [mapHeight / 2, mapWidth / 2],
+            maxBounds: [[0, 0], [mapHeight, mapWidth]],
+            maxBoundsViscosity: 1.0
+        });
+
+        // Наложение карты Удачное
+        const udacheBounds = [[0, 0], [mapHeight, mapWidth]];
+        const udacheLayer = L.imageOverlay('udache.png', udacheBounds).addTo(map);
+
+        // Другие слои
+        const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+            noWrap: true
+        });
+
+        const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: '&copy; <a href="https://www.esri.com/">Esri</a>',
+            noWrap: true
+        });
+
+        let currentLayer = udacheLayer;
+
+        function changeLayer() {
+            const layer = document.getElementById('layer').value;
+            map.removeLayer(currentLayer);
+            if (layer === 'udache') {
+                currentLayer = udacheLayer;
+                map.setView([mapHeight / 2, mapWidth / 2], -1);
+                map.options.crs = L.CRS.Simple;
+                map.setMaxBounds(udacheBounds);
+            } else {
+                map.options.crs = L.CRS.EPSG3857;
+                map.setMaxBounds(null);
+                map.setView([50.45, 30.52], 12); // Центр на Киеве для OSM/Спутник
+                currentLayer = layer === 'satellite' ? satelliteLayer : osmLayer;
+            }
+            map.addLayer(currentLayer);
+            // Переместить маркеры на новую карту
+            if (mortarMarker) {
+                map.removeLayer(mortarMarker);
+                mortarMarker = null;
+            }
+            if (targetMarker) {
+                map.removeLayer(targetMarker);
+                targetMarker = null;
+            }
+            document.getElementById('result').innerHTML = '';
+        }
+
+        // Маркеры
+        let mortarMarker = null;
+        let targetMarker = null;
+
+        // Данные минометов
+        const uaMortarData = [
+            [400, 1531], [500, 1514], [600, 1496], [700, 1478], [800, 1460], [900, 1442],
+            [1000, 1424], [1100, 1405], [1200, 1385], [1300, 1366], [1400, 1346], [1500, 1326],
+            [1600, 1305], [1700, 1283], [1800, 1261], [1900, 1238], [2000, 1214], [2100, 1188],
+            [2200, 1162], [2300, 1134], [2400, 1104], [2500, 1070], [2600, 1034], [2700, 993],
+            [2800, 942], [2900, 870]
+        ];
+
+        const ruMortarData = [
+            [400, 1418], [500, 1398], [600, 1376], [700, 1355], [800, 1333], [900, 1311],
+            [1000, 1288], [1100, 1264], [1200, 1240], [1300, 1215], [1400, 1189], [1500, 1161],
+            [1600, 1133], [1700, 1102], [1800, 1069], [1900, 1034], [2000, 995], [2100, 950],
+            [2200, 896], [2300, 820]
+        ];
+
+        const gradMortarData = [
+            [3000, 140], [3200, 150], [3400, 159], [3600, 169], [3800, 179], [4000, 190],
+            [4200, 200], [4400, 211], [4600, 221], [4800, 233], [5000, 244], [5200, 256],
+            [5400, 268], [5600, 280], [5800, 293], [6000, 306], [6200, 320], [6400, 334],
+            [6600, 349], [6800, 364], [7000, 380], [7200, 398], [7400, 416], [7600, 436],
+            [7800, 458], [8000, 482], [8200, 509], [8400, 543], [8600, 587]
+        ];
+
+        function interpolate(data, dist) {
+            if (dist < data[0][0] || dist > data[data.length - 1][0]) return null;
+            for (let i = 0; i < data.length - 1; i++) {
+                if (dist >= data[i][0] && dist <= data[i + 1][0]) {
+                    const ratio = (dist - data[i][0]) / (data[i + 1][0] - data[i][0]);
+                    const elev = data[i][1] + (data[i + 1][1] - data[i][1]) * ratio;
+                    return elev;
+                }
+            }
+            return null;
+        }
+
+        // Обработчики событий карты
+        map.on('contextmenu', (e) => {
+            if (mortarMarker) map.removeLayer(mortarMarker);
+            mortarMarker = L.marker(e.latlng, { draggable: true, icon: L.divIcon({ className: 'mortar-icon', html: '<div style="background:red;width:10px;height:10px;border-radius:50%;"></div>' }) }).addTo(map);
+            mortarMarker.bindPopup('Миномет').openPopup();
+            mortarMarker.on('dragend', calculateFromMap);
+            calculateFromMap();
+        });
+
+        map.on('click', (e) => {
+            if (targetMarker) map.removeLayer(targetMarker);
+            targetMarker = L.marker(e.latlng, { draggable: true, icon: L.divIcon({ className: 'target-icon', html: '<div style="background:blue;width:10px;height:10px;border-radius:50%;"></div>' }) }).addTo(map);
+            targetMarker.bindPopup('Цель').openPopup();
+            targetMarker.on('dragend', calculateFromMap);
+            calculateFromMap();
+        });
+
+        function calculateFromMap() {
+            if (!mortarMarker || !targetMarker) return;
+            const mortarPos = mortarMarker.getLatLng();
+            const targetPos = targetMarker.getLatLng();
+            let dist, dx, dy;
+            const layer = document.getElementById('layer').value;
+            if (layer === 'udache') {
+                // Для карты Удачное используем метры
+                dx = targetPos.lng - mortarPos.lng;
+                dy = targetPos.lat - mortarPos.lat;
+                dist = Math.sqrt(dx * dx + dy * dy);
+            } else {
+                // Для OSM/Спутник используем географическое расстояние
+                dist = mortarPos.distanceTo(targetPos);
+                dx = targetPos.lng - mortarPos.lng;
+                dy = targetPos.lat - mortarPos.lat;
+            }
+            // Исправленный расчет азимута: верх = 0°/360°, право = 90°, низ = 180°, лево = 270°
+            const azRad = Math.atan2(dx, dy); // dx и dy без инверсии
+            let azDeg = (azRad * 180 / Math.PI + 360) % 360; // По часовой стрелке от верха
+            const azUaMils = (azDeg / 360) * 6400;
+            const azRuMils = (azDeg / 360) * 6000;
+            const mortarType = document.getElementById('mortar').value;
+            let data, azMils;
+            if (mortarType === 'ua') {
+                data = uaMortarData;
+                azMils = azUaMils.toFixed(0);
+            } else if (mortarType === 'ru') {
+                data = ruMortarData;
+                azMils = azRuMils.toFixed(0);
+            } else {
+                data = gradMortarData;
+                azMils = azRuMils.toFixed(0);
+            }
+            let elev = interpolate(data, dist);
+            let elevText = elev !== null ? `${elev.toFixed(1)} mils` : 'Вне диапазона!';
+            document.getElementById('result').innerHTML = `
+                Расстояние: ${dist.toFixed(0)} м<br>
+                Азимут: ${azDeg.toFixed(1)}° (${azMils} mils)<br>
+                Угол возвышения: ${elevText}
+            `;
+        }
+
+        function calculateManual() {
+            const dist = parseFloat(document.getElementById('distance').value);
+            if (isNaN(dist)) return;
+            const mortarType = document.getElementById('mortar').value;
+            let data;
+            if (mortarType === 'ua') {
+                data = uaMortarData;
+            } else if (mortarType === 'ru') {
+                data = ruMortarData;
+            } else {
+                data = gradMortarData;
+            }
+            let elev = interpolate(data, dist);
+            let elevText = elev !== null ? `${elev.toFixed(1)} mils` : 'Вне диапазона!';
+            document.getElementById('result').innerHTML = `Ручное расстояние: ${dist} м | Угол возвышения: ${elevText}`;
+        }
+
+        function clearMap() {
+            if (mortarMarker) map.removeLayer(mortarMarker);
+            if (targetMarker) map.removeLayer(targetMarker);
+            mortarMarker = null;
+            targetMarker = null;
+            document.getElementById('result').innerHTML = '';
+        }
+
+        function toggleControls() {
+            const controls = document.getElementById('controls');
+            controls.classList.toggle('active');
+        }
+
+        // Установка начального вида
+        map.fitBounds(udacheBounds);
+    </script>
+</body>
+</html>
