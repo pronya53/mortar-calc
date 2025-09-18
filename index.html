@@ -606,10 +606,9 @@
             maxBoundsViscosity: 1.0
         });
        
-// Наложение карты Удачное 
-        const udacheBounds = [[0, 0], [mapHeight, mapWidth]]; 
+// Наложение карты Удачное
+        const udacheBounds = [[0, 0], [mapHeight, mapWidth]];
         const udacheLayer = L.imageOverlay('udache.png', udacheBounds).addTo(map);
-        });
         
         // Другие слои
         const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -875,6 +874,7 @@
     </script>
 </body>
 </html>
+
 
 
 
