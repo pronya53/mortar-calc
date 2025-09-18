@@ -605,11 +605,12 @@
             maxBounds: [[0, 0], [mapHeight, mapWidth]],
             maxBoundsViscosity: 1.0
         });
-
+       
         // Наложение карты Удачное
         const udacheBounds = [[0, 0], [mapHeight, mapWidth]];
-        const udacheLayer = L.imageOverlay('https://i.postimg.cc/yxrbXtVW/IMG-20250917-162744-657.png', udacheBounds).addTo(map)
+        const udacheLayer = L.imageOverlay('IMG_20250917_162744_657.png', udacheBounds).addTo(map)
       });
+
 
         // Другие слои
         const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -875,6 +876,7 @@
     </script>
 </body>
 </html>
+
 
 
 
