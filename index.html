@@ -611,8 +611,10 @@
         const udacheLayer = L.imageOverlay('IMG_20250917_162744_657.png', osmBounds).addTo(map);
         
         // Другие слои
-        const osmBounds = [[0, 0], [mapHeight, mapWidth]];
-        const osmLayer = L.imageOverlay('IMG_20250917_162944_112[1].png', osmBounds).addTo(map);
+        const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+            noWrap: true
+        });
 
         const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
             attribution: '&copy; <a href="https://www.esri.com/">Esri</a>',
@@ -872,6 +874,7 @@
     </script>
 </body>
 </html>
+
 
 
 
