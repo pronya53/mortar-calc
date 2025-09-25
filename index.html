@@ -924,8 +924,8 @@
         }
 
         // Инициализация карты с простой системой координат
-        const mapWidth = 10240; // метры
-        const mapHeight = 5120; // метры
+        let mapWidth = 10240; // метры
+        let mapHeight = 5120; // метры
         const map = L.map('map', {
             crs: L.CRS.Simple,
             minZoom: -2,
@@ -968,6 +968,8 @@
             map.removeLayer(currentLayer);
             
             if (layer === 'udache') {
+                mapWidth = 10240;
+                mapHeight = 5120;
                 currentLayer = udacheLayer;
                 map.setView([mapHeight / 2, mapWidth / 2], -1);
                 map.options.crs = L.CRS.Simple;
@@ -976,6 +978,8 @@
             } else if (layer === 'osm') {
                 // Попытка загрузить карту Сергеевка из PNG файла
                 try {
+                    mapHeight = 10240;
+                    mapWidth = 10240;
                     currentLayer = sergeevkaLayer;
                     map.setView([mapHeight / 2, mapWidth / 2], -1);
                     map.options.crs = L.CRS.Simple;
@@ -992,6 +996,8 @@
             } else if (layer === 'satellite') {
                 // Попытка загрузить карту Донецкий Аэропорт из PNG файла
                 try {
+                    mapHeight = 4352;
+                    mapWidth = 4352;
                     currentLayer = donAirLayer;
                     map.setView([mapHeight / 2, mapWidth / 2], -1);
                     map.options.crs = L.CRS.Simple;
