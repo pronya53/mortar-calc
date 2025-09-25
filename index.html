@@ -924,8 +924,8 @@
         }
 
         // Инициализация карты с простой системой координат
-        let mapWidth = 10240; // метры
-        let mapHeight = 5120; // метры
+        let mapWidth = 10240;
+        let mapHeight = 5120; 
         const map = L.map('map', {
             crs: L.CRS.Simple,
             minZoom: -2,
@@ -937,7 +937,7 @@
         });
 
         // Наложение карты Удачное
-        const udacheBounds = [[0, 0], [10240, 5120]];
+        const udacheBounds = [[0, 0], [5120, 10240]];
         const udacheLayer = L.imageOverlay('IMG_20250917_162744_657.png', udacheBounds).addTo(map);
 
         // размеры для остальных карт
