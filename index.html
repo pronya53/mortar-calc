@@ -937,17 +937,21 @@
         });
 
         // Наложение карты Удачное
-        const udacheBounds = [[0, 0], [mapHeight, mapWidth]];
+        const udacheBounds = [[0, 0], [10240, 5120]];
         const udacheLayer = L.imageOverlay('IMG_20250917_162744_657.png', udacheBounds).addTo(map);
+
+        // размеры для остальных карт
+        const donairBounds = [[0,0], [4352,4352]]
+        const sergeevkaBounds = [[0,0], [10240,10240]]
 
         // ========================================
         // ЗАМЕНА PNG КАРТИНОК ДЛЯ КАРТ:
         // ========================================
         // Для карты "Сергеевка" - замените файл ниже на ваш PNG файл:
-        const sergeevkaLayer = L.imageOverlay('sergeevka.png', udacheBounds);
+        const sergeevkaLayer = L.imageOverlay('sergeevka.png', sergeevkaBounds);
         
         // Для карты "Донецкий Аэропорт" - замените файл ниже на ваш PNG файл:
-        const donAirLayer = L.imageOverlay('IMG_20250917_162944_112[1].png', udacheBounds);
+        const donAirLayer = L.imageOverlay('IMG_20250917_162944_112[1].png', donairBounds);
         // ========================================
 
         // Резервные онлайн слои (если PNG файлы недоступны)
@@ -983,7 +987,7 @@
                     currentLayer = sergeevkaLayer;
                     map.setView([mapHeight / 2, mapWidth / 2], -1);
                     map.options.crs = L.CRS.Simple;
-                    map.setMaxBounds(udacheBounds);
+                    map.setMaxBounds(sergeevkaBounds);
                     showNotification('Карта "Сергеевка" загружена');
                 } catch (error) {
                     // Если PNG недоступен, используем онлайн слой
@@ -1001,7 +1005,7 @@
                     currentLayer = donAirLayer;
                     map.setView([mapHeight / 2, mapWidth / 2], -1);
                     map.options.crs = L.CRS.Simple;
-                    map.setMaxBounds(udacheBounds);
+                    map.setMaxBounds(donairBounds);
                     showNotification('Карта "Донецкий Аэропорт" загружена');
                 } catch (error) {
                     // Если PNG недоступен, используем спутниковый слой
