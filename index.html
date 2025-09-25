@@ -7,11 +7,15 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <style>
+        * {
+            box-sizing: border-box;
+        }
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             overflow: hidden;
-            background: #f0f0f0;
+            background: #1a202c;
+            color: #e2e8f0;
         }
         #map {
             position: fixed;
@@ -20,242 +24,423 @@
             width: 100vw;
             height: 100vh;
         }
-        #menu {
+        
+        /* Плавающая кнопка меню справа */
+        #main-menu-btn {
             position: fixed;
-            top: 20px;
-            left: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            z-index: 1000;
-        }
-        .menu-btn {
-            width: 40px;
-            height: 40px;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
-            background-color: #333;
-            color: white;
-            border: none;
+            background: linear-gradient(135deg, #2f855a, #38a169);
+            color: #e2e8f0;
+            border: 3px solid #4a5568;
             cursor: pointer;
-            font-size: 18px;
+            font-size: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            transition: background-color 0.3s;
+            box-shadow: 0 4px 15px rgba(47, 133, 90, 0.4);
+            transition: all 0.3s ease;
+            z-index: 1500;
         }
-        .menu-btn:hover {
-            background-color: #555;
+        #main-menu-btn:hover {
+            transform: translateY(-50%) scale(1.1);
+            box-shadow: 0 6px 25px rgba(47, 133, 90, 0.6);
+            background: linear-gradient(135deg, #38a169, #48bb78);
         }
-        #controls {
+        #main-menu-btn:active {
+            transform: translateY(-50%) scale(0.95);
+        }
+
+        /* Центральное модальное окно */
+        #main-modal {
+            display: none;
             position: fixed;
-            top: 20px;
-            left: -300px;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+            animation: fadeIn 0.3s ease;
+        }
+        #main-modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Главное окно меню */
+        #menu-container {
+            width: 90%;
+            max-width: 900px;
+            height: 80%;
+            max-height: 600px;
+            background: linear-gradient(135deg, #2d3748, #1a202c);
+            border: 2px solid #4a5568;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            display: flex;
+            overflow: hidden;
+            animation: slideIn 0.4s ease;
+        }
+
+        /* Левая панель навигации */
+        #menu-sidebar {
             width: 250px;
-            background-color: rgba(255, 255, 255, 0.95);
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-            transition: left 0.3s ease;
-            z-index: 1000;
+            background: linear-gradient(180deg, #2f855a, #38a169);
+            padding: 20px 0;
+            border-right: 2px solid #4a5568;
         }
-        #controls.active {
-            left: 20px;
-        }
-        #controls label, #controls select, #controls input, #controls button {
-            display: block;
-            margin: 10px 0;
-            padding: 6px;
-            width: 100%;
-            box-sizing: border-box;
-            font-size: 14px;
-            border-radius: 4px;
-        }
-        #controls select, #controls input {
-            border: 1px solid #ccc;
-        }
-        #controls button {
-            background-color: #333;
-            color: white;
-            border: none;
+
+        .menu-nav-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+            color: #e2e8f0;
         }
-        #controls button:hover {
-            background-color: #555;
+        .menu-nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-left-color: #68d391;
+        }
+        .menu-nav-item.active {
+            background: rgba(255, 255, 255, 0.15);
+            border-left-color: #68d391;
+            color: #68d391;
+        }
+        .menu-nav-item i {
+            width: 20px;
+            margin-right: 12px;
+            font-size: 18px;
+        }
+
+        /* Правая панель содержимого */
+        #menu-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            background: #1a202c;
+        }
+
+        /* Заголовки разделов */
+        .menu-section {
+            display: none;
+        }
+        .menu-section.active {
+            display: block;
+        }
+        .menu-section h2 {
+            color: #68d391;
+            margin-bottom: 20px;
+            font-size: 24px;
+            border-bottom: 2px solid #4a5568;
+            padding-bottom: 10px;
+        }
+
+        /* Кнопка закрытия */
+        #menu-close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 40px;
+            height: 40px;
+            background: #e53e3e;
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 2001;
+        }
+        #menu-close-btn:hover {
+            background: #c53030;
+            transform: scale(1.1);
+        }
+
+        /* Анимации */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideIn {
+            from { 
+                transform: scale(0.8) translateY(-50px);
+                opacity: 0;
+            }
+            to { 
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
+        }
+        /* Стили для форм в военной тематике */
+        .military-form-group {
+            margin-bottom: 20px;
+        }
+        .military-label {
+            display: block;
+            color: #68d391;
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .military-select, .military-input {
+            width: 100%;
+            padding: 12px;
+            background: #2d3748;
+            border: 2px solid #4a5568;
+            border-radius: 8px;
+            color: #e2e8f0;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        .military-select:focus, .military-input:focus {
+            outline: none;
+            border-color: #68d391;
+            box-shadow: 0 0 10px rgba(104, 211, 145, 0.3);
+        }
+        .military-select option {
+            background: #2d3748;
+            color: #e2e8f0;
+        }
+        .military-btn {
+            background: linear-gradient(135deg, #2f855a, #38a169);
+            color: #e2e8f0;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .military-btn:hover {
+            background: linear-gradient(135deg, #38a169, #48bb78);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(47, 133, 90, 0.4);
+        }
+        .military-btn:active {
+            transform: translateY(0);
         }
         #result-panel {
             display: none;
             position: fixed;
             bottom: 20px;
             left: 20px;
-            width: 300px;
-            background-color: rgba(255, 255, 255, 0.95);
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            width: 350px;
+            background: linear-gradient(135deg, #2d3748, #1a202c);
+            border: 2px solid #68d391;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
             z-index: 1000;
             font-size: 14px;
-            font-weight: bold;
+            color: #e2e8f0;
+            backdrop-filter: blur(10px);
         }
         #result-panel.active {
             display: block;
+            animation: slideUp 0.4s ease;
         }
         #result-panel .close-btn {
             position: absolute;
-            top: 5px;
-            right: 5px;
-            width: 20px;
-            height: 20px;
-            background: none;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            background: #e53e3e;
             border: none;
+            border-radius: 50%;
             font-size: 16px;
             cursor: pointer;
-            color: #333;
+            color: #e2e8f0;
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: all 0.3s ease;
         }
         #result-panel .close-btn:hover {
-            color: #555;
+            background: #c53030;
+            transform: scale(1.1);
         }
-        #layer-control {
+        @keyframes slideUp {
+            from { 
+                transform: translateY(100px);
+                opacity: 0;
+            }
+            to { 
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        /* Быстрое меню для очистки карты */
+        #quick-actions {
             position: fixed;
             top: 20px;
-            right: 20px;
-            background-color: rgba(255, 255, 255, 0.95);
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            left: 20px;
             z-index: 1000;
+            display: flex;
+            gap: 10px;
         }
-        #device-selector {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 1000;
-        }
-        #device-btn {
-            width: 40px;
-            height: 40px;
+        .quick-btn {
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
-            background-color: #333;
-            color: white;
-            border: none;
+            background: linear-gradient(135deg, #2d3748, #4a5568);
+            border: 2px solid #68d391;
+            color: #e2e8f0;
             cursor: pointer;
             font-size: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            transition: background-color 0.3s;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
         }
-        #device-btn:hover {
-            background-color: #555;
-        }
-        #device-options {
-            display: none;
-            position: absolute;
-            bottom: 50px;
-            right: 0;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-            padding: 10px;
-            flex-direction: column;
-            gap: 5px;
-            z-index: 1000;
-        }
-        #device-options.active {
-            display: flex;
-        }
-        #device-options button {
-            padding: 8px;
-            background-color: #333;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        #device-options button:hover {
-            background-color: #555;
+        .quick-btn:hover {
+            background: linear-gradient(135deg, #4a5568, #68d391);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(104, 211, 145, 0.4);
         }
         #mobile-buttons {
             display: none;
             position: fixed;
-            bottom: 80px;
-            right: 20px;
+            bottom: 20px;
+            right: 100px;
             flex-direction: column;
-            gap: 10px;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            gap: 15px;
+            background: linear-gradient(135deg, #2d3748, #1a202c);
+            border: 2px solid #4a5568;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
             z-index: 1000;
-            transition: opacity 0.3s ease;
+            min-width: 200px;
         }
         #mobile-buttons.active {
             display: flex;
-        }
-        .mobile-btn {
-            padding: 8px 15px;
-            background-color: #333;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.3s;
-        }
-        .mobile-btn:hover {
-            background-color: #555;
+            animation: slideUp 0.4s ease;
         }
         #mobile-close-btn {
             position: absolute;
             top: 5px;
             right: 5px;
-            width: 20px;
-            height: 20px;
-            background: none;
+            width: 25px;
+            height: 25px;
+            background: #e53e3e;
             border: none;
-            font-size: 16px;
+            border-radius: 50%;
+            font-size: 14px;
             cursor: pointer;
-            color: #333;
+            color: #e2e8f0;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: color 0.3s;
+            transition: all 0.3s ease;
         }
         #mobile-close-btn:hover {
-            color: #555;
+            background: #c53030;
+            transform: scale(1.1);
         }
-        @media (max-width: 600px) {
-            #controls {
-                width: 200px;
-                left: -100vw;
-            }
-            #controls.active {
-                left: 10px;
-            }
-            #layer-control {
+        /* Адаптивные стили */
+        @media (max-width: 768px) {
+            #main-menu-btn {
                 right: 10px;
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
             }
-            #menu {
+            
+            #menu-container {
+                width: 95%;
+                height: 90%;
+                flex-direction: column;
+            }
+            
+            #menu-sidebar {
+                width: 100%;
+                height: 80px;
+                padding: 10px 0;
+                display: flex;
+                overflow-x: auto;
+                overflow-y: hidden;
+            }
+            
+            .menu-nav-item {
+                min-width: 120px;
+                padding: 10px 15px;
+                text-align: center;
+                border-left: none;
+                border-bottom: 4px solid transparent;
+            }
+            .menu-nav-item.active,
+            .menu-nav-item:hover {
+                border-bottom-color: #68d391;
+                border-left-color: transparent;
+            }
+            
+            #menu-content {
+                padding: 20px;
+                height: calc(100% - 80px);
+            }
+            
+            #quick-actions {
                 top: 10px;
                 left: 10px;
             }
-            #device-selector {
+            .quick-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 16px;
+            }
+            
+            #mobile-buttons {
                 bottom: 10px;
                 right: 10px;
+                min-width: 180px;
             }
-            #mobile-buttons {
-                bottom: 60px;
-                right: 10px;
-            }
+            
             #result-panel {
-                width: 90%;
+                width: calc(100% - 20px);
                 left: 10px;
+                bottom: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #menu-sidebar {
+                height: 60px;
+            }
+            
+            .menu-nav-item {
+                min-width: 100px;
+                padding: 8px 10px;
+                font-size: 12px;
+            }
+            
+            .menu-nav-item i {
+                font-size: 16px;
+                margin-right: 8px;
+            }
+            
+            #menu-content {
+                padding: 15px;
+            }
+            
+            .menu-section h2 {
+                font-size: 20px;
             }
         }
         #info-panel {
@@ -302,9 +487,13 @@
             left: 50%;
             transform: translateX(-50%);
             font-size: 12px;
-            color: #666;
+            color: #68d391;
             z-index: 1000;
             text-align: center;
+            background: rgba(26, 32, 44, 0.8);
+            padding: 5px 10px;
+            border-radius: 15px;
+            border: 1px solid #4a5568;
         }
         #language-control {
             position: fixed;
@@ -323,77 +512,160 @@
 </head>
 <body>
     <div id="map"></div>
-    <div id="menu">
-        <button class="menu-btn" onclick="toggleControls()" title="Открыть настройки">&#9881;</button>
-        <button class="menu-btn" onclick="clearMap()" title="Очистить карту"><i class="fas fa-trash"></i></button>
-        <button class="menu-btn" onclick="toggleInfo()" title="Информация"><i class="fas fa-info-circle"></i></button>
+    
+    <!-- Быстрые действия -->
+    <div id="quick-actions">
+        <button class="quick-btn" onclick="clearMap()" title="Очистить карту">
+            <i class="fas fa-trash"></i>
+        </button>
     </div>
-    <div id="controls">
-        <button class="close-btn" onclick="toggleControls()">&times;</button>
-        <label for="mortar" id="mortar-label">Тип оружия:</label>
-        <select id="mortar">
-            <option value="ua">UA (US M821 HE 81mm)</option>
-            <option value="ru">RU (О-832Д 82mm)</option>
-            <option value="grad">BM-21 Grad (122mm)</option>
-        </select>
-        <label for="distance" id="distance-label">Ручное расстояние (м, опционально):</label>
-        <input type="number" id="distance" min="0" placeholder="например, 1350">
-        <label for="h_mortar" id="h_mortar-label">Высота миномета (м):</label>
-        <input type="number" id="h_mortar" value="0" placeholder="например, 170">
-        <label for="h_target" id="h_target-label">Высота цели (м):</label>
-        <input type="number" id="h_target" value="0" placeholder="например, 120">
-        <button id="calculate-manual-btn" onclick="calculateManual()">Рассчитать вручную</button>
+
+    <!-- Главная кнопка меню -->
+    <button id="main-menu-btn" onclick="toggleMainMenu()" title="Открыть меню">
+        <i class="fas fa-cog"></i>
+    </button>
+
+    <!-- Главное модальное окно -->
+    <div id="main-modal">
+        <button id="menu-close-btn" onclick="toggleMainMenu()">&times;</button>
+        <div id="menu-container">
+            <!-- Левая панель навигации -->
+            <div id="menu-sidebar">
+                <div class="menu-nav-item active" onclick="showMenuSection('mortar-section')" data-section="mortar">
+                    <i class="fas fa-crosshairs"></i>
+                    <span>Тип миномета</span>
+                </div>
+                <div class="menu-nav-item" onclick="showMenuSection('language-section')" data-section="language">
+                    <i class="fas fa-globe"></i>
+                    <span>Язык</span>
+                </div>
+                <div class="menu-nav-item" onclick="showMenuSection('device-section')" data-section="device">
+                    <i class="fas fa-mobile-alt"></i>
+                    <span>Устройство</span>
+                </div>
+                <div class="menu-nav-item" onclick="showMenuSection('map-section')" data-section="map">
+                    <i class="fas fa-map"></i>
+                    <span>Выбор карты</span>
+                </div>
+                <div class="menu-nav-item" onclick="showMenuSection('calc-section')" data-section="calc">
+                    <i class="fas fa-calculator"></i>
+                    <span>Расчеты</span>
+                </div>
+                <div class="menu-nav-item" onclick="showMenuSection('info-section')" data-section="info">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Информация</span>
+                </div>
+            </div>
+            
+            <!-- Правая панель содержимого -->
+            <div id="menu-content">
+                <!-- Раздел типа миномета -->
+                <div id="mortar-section" class="menu-section active">
+                    <h2><i class="fas fa-crosshairs"></i> Тип оружия</h2>
+                    <div class="military-form-group">
+                        <label class="military-label" for="mortar">Выберите тип оружия:</label>
+                        <select id="mortar" class="military-select">
+                            <option value="ua">UA (US M821 HE 81mm)</option>
+                            <option value="ru">RU (О-832Д 82mm)</option>
+                            <option value="grad">BM-21 Grad (122mm)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Раздел языка -->
+                <div id="language-section" class="menu-section">
+                    <h2><i class="fas fa-globe"></i> Язык интерфейса</h2>
+                    <div class="military-form-group">
+                        <label class="military-label" for="language">Выберите язык:</label>
+                        <select id="language" class="military-select" onchange="changeLanguage()">
+                            <option value="ru">Русский</option>
+                            <option value="uk">Українська</option>
+                            <option value="en">English</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Раздел устройства -->
+                <div id="device-section" class="menu-section">
+                    <h2><i class="fas fa-mobile-alt"></i> Выбор устройства</h2>
+                    <div class="military-form-group">
+                        <button class="military-btn" onclick="setDevice('pc')">
+                            <i class="fas fa-desktop"></i> ПК
+                        </button>
+                        <button class="military-btn" onclick="setDevice('mobile')">
+                            <i class="fas fa-mobile-alt"></i> Мобильное устройство
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Раздел выбора карты -->
+                <div id="map-section" class="menu-section">
+                    <h2><i class="fas fa-map"></i> Выбор карты</h2>
+                    <div class="military-form-group">
+                        <label class="military-label" for="layer">Выберите карту:</label>
+                        <select id="layer" class="military-select" onchange="changeLayer()">
+                            <option value="udache">Удачное</option>
+                            <option value="osm">Сергеевка</option> <!-- ЗАМЕНИТЕ PNG: sergeevka.png -->
+                            <option value="satellite">Донецкий Аэропорт</option> <!-- ЗАМЕНИТЕ PNG: don_air.png -->
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Раздел расчетов -->
+                <div id="calc-section" class="menu-section">
+                    <h2><i class="fas fa-calculator"></i> Ручные расчеты</h2>
+                    <div class="military-form-group">
+                        <label class="military-label" for="distance">Расстояние (м, опционально):</label>
+                        <input type="number" id="distance" class="military-input" min="0" placeholder="например, 1350">
+                    </div>
+                    <div class="military-form-group">
+                        <label class="military-label" for="h_mortar">Высота миномета (м):</label>
+                        <input type="number" id="h_mortar" class="military-input" value="0" placeholder="например, 170">
+                    </div>
+                    <div class="military-form-group">
+                        <label class="military-label" for="h_target">Высота цели (м):</label>
+                        <input type="number" id="h_target" class="military-input" value="0" placeholder="например, 120">
+                    </div>
+                    <button class="military-btn" onclick="calculateManual()">
+                        <i class="fas fa-calculator"></i> Рассчитать вручную
+                    </button>
+                </div>
+
+                <!-- Раздел информации -->
+                <div id="info-section" class="menu-section">
+                    <h2><i class="fas fa-info-circle"></i> Информация</h2>
+                    <div id="info-content">
+                        <h3>Как использовать:</h3>
+                        <ul>
+                            <li>Выберите тип оружия в настройках.</li>
+                            <li>На ПК: Правый клик - поставить миномет (красный маркер), левый клик - поставить цель (синий маркер).</li>
+                            <li>На мобильном: Выберите режим (миномет или цель) и кликните на карту.</li>
+                            <li>Перетаскивайте маркеры для корректировки.</li>
+                            <li>Используйте ручной ввод расстояния и высот для расчета без карты.</li>
+                            <li>Смените карту в выборе слоя.</li>
+                        </ul>
+                        <p>Расчеты основаны на таблицах для указанных боеприпасов.</p>
+                        <p><strong>Автор:</strong> PRONEDROG</p>
+                        <p><strong>Данные карт предоставлены:</strong> Conflict In Europe</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+    <!-- Панель результатов -->
     <div id="result-panel">
         <button class="close-btn" onclick="closeResult()">&times;</button>
         <div id="result"></div>
     </div>
-    <div id="layer-control">
-        <label for="layer" id="layer-label">Выбор карты:</label>
-        <select id="layer" onchange="changeLayer()">
-            <option value="udache">Удачное</option>
-            <option value="osm">Сергеевка</option>
-            <option value="satellite">Донецкий Аэропорт</option>
-        </select>
-    </div>
-    <div id="language-control">
-        <label for="language" id="language-label">Язык:</label>
-        <select id="language" onchange="changeLanguage()">
-            <option value="ru">Русский</option>
-            <option value="uk">Українська</option>
-            <option value="en">English</option>
-        </select>
-    </div>
-    <div id="device-selector">
-        <button id="device-btn" onclick="toggleDeviceOptions()" title="Выбор устройства">&#128241;</button>
-        <div id="device-options">
-            <button class="close-btn" onclick="toggleDeviceOptions()">&times;</button>
-            <button id="pc-btn" onclick="setDevice('pc')">ПК</button>
-            <button id="mobile-btn" onclick="setDevice('mobile')">Телефон</button>
-        </div>
-    </div>
+    <!-- Мобильные кнопки -->
     <div id="mobile-buttons">
         <button class="close-btn" id="mobile-close-btn" onclick="toggleMobileButtons()">&times;</button>
-        <button class="mobile-btn" id="mortar-btn" onclick="activateMode('mortar')">Поставить миномёт</button>
-        <button class="mobile-btn" id="target-btn" onclick="activateMode('target')">Поставить цель</button>
-    </div>
-    <div id="info-panel">
-        <button class="close-btn" onclick="toggleInfo()">&times;</button>
-        <h2 id="info-title">Информация</h2>
-        <div id="info-text">
-            <h3>Как использовать:</h3>
-            <ul>
-                <li>Выберите тип оружия в настройках.</li>
-                <li>На ПК: Правый клик - поставить миномет (красный маркер), левый клик - поставить цель (синий маркер).</li>
-                <li>На мобильном: Выберите режим (миномет или цель) и кликните на карту.</li>
-                <li>Перетаскивайте маркеры для корректировки.</li>
-                <li>Используйте ручной ввод расстояния и высот для расчета без карты.</li>
-                <li>Смените карту в выборе слоя.</li>
-            </ul>
-            <p>Расчеты основаны на таблицах для указанных боеприпасов.</p>
-            <p><strong>Автор:</strong> PRONEDROG</p>
-            <p><strong>Данные карт предоставлены:</strong> Conflict In Europe</p>
-        </div>
+        <button class="military-btn" id="mortar-btn" onclick="activateMode('mortar')">
+            <i class="fas fa-crosshairs"></i> Поставить миномёт
+        </button>
+        <button class="military-btn" id="target-btn" onclick="activateMode('target')">
+            <i class="fas fa-bullseye"></i> Поставить цель
+        </button>
     </div>
     <div id="credits">
         Powered by PRONEDROG | За поддержкой Conflict In Europe
@@ -667,7 +939,17 @@
         const udacheBounds = [[0, 0], [mapHeight, mapWidth]];
         const udacheLayer = L.imageOverlay('IMG_20250917_162744_657.png', udacheBounds).addTo(map);
 
-        // Другие слои
+        // ========================================
+        // ЗАМЕНА PNG КАРТИНОК ДЛЯ КАРТ:
+        // ========================================
+        // Для карты "Сергеевка" - замените файл ниже на ваш PNG файл:
+        const sergeevkaLayer = L.imageOverlay('sergeevka.png', udacheBounds);
+        
+        // Для карты "Донецкий Аэропорт" - замените файл ниже на ваш PNG файл:
+        const donAirLayer = L.imageOverlay('don_air.png', udacheBounds);
+        // ========================================
+
+        // Резервные онлайн слои (если PNG файлы недоступны)
         const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
             noWrap: true
@@ -683,18 +965,50 @@
         function changeLayer() {
             const layer = document.getElementById('layer').value;
             map.removeLayer(currentLayer);
+            
             if (layer === 'udache') {
                 currentLayer = udacheLayer;
                 map.setView([mapHeight / 2, mapWidth / 2], -1);
                 map.options.crs = L.CRS.Simple;
                 map.setMaxBounds(udacheBounds);
-            } else {
-                map.options.crs = L.CRS.EPSG3857;
-                map.setMaxBounds(null);
-                map.setView([50.45, 30.52], 12);
-                currentLayer = layer === 'satellite' ? satelliteLayer : osmLayer;
+                showNotification('Карта "Удачное" загружена');
+            } else if (layer === 'osm') {
+                // Попытка загрузить карту Сергеевка из PNG файла
+                try {
+                    currentLayer = sergeevkaLayer;
+                    map.setView([mapHeight / 2, mapWidth / 2], -1);
+                    map.options.crs = L.CRS.Simple;
+                    map.setMaxBounds(udacheBounds);
+                    showNotification('Карта "Сергеевка" загружена');
+                } catch (error) {
+                    // Если PNG недоступен, используем онлайн слой
+                    map.options.crs = L.CRS.EPSG3857;
+                    map.setMaxBounds(null);
+                    map.setView([50.45, 30.52], 12);
+                    currentLayer = osmLayer;
+                    showNotification('Карта "Сергеевка" (онлайн режим)');
+                }
+            } else if (layer === 'satellite') {
+                // Попытка загрузить карту Донецкий Аэропорт из PNG файла
+                try {
+                    currentLayer = donAirLayer;
+                    map.setView([mapHeight / 2, mapWidth / 2], -1);
+                    map.options.crs = L.CRS.Simple;
+                    map.setMaxBounds(udacheBounds);
+                    showNotification('Карта "Донецкий Аэропорт" загружена');
+                } catch (error) {
+                    // Если PNG недоступен, используем спутниковый слой
+                    map.options.crs = L.CRS.EPSG3857;
+                    map.setMaxBounds(null);
+                    map.setView([50.45, 30.52], 12);
+                    currentLayer = satelliteLayer;
+                    showNotification('Карта "Донецкий Аэропорт" (спутник)');
+                }
             }
+            
             map.addLayer(currentLayer);
+            
+            // Очищаем маркеры при смене карты
             if (mortarMarker) {
                 map.removeLayer(mortarMarker);
                 mortarMarker = null;
@@ -861,40 +1175,57 @@
             document.getElementById('result-panel').classList.remove('active');
         }
 
-        function toggleControls() {
-            const controls = document.getElementById('controls');
-            controls.classList.toggle('active');
+        // Функции главного меню
+        function toggleMainMenu() {
+            const modal = document.getElementById('main-modal');
+            modal.classList.toggle('active');
+            if (modal.classList.contains('active')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = 'hidden'; // Всегда скрываем overflow для карты
+            }
         }
 
-        function toggleDeviceOptions() {
-            const options = document.getElementById('device-options');
-            options.classList.toggle('active');
+        function showMenuSection(sectionId) {
+            // Скрываем все разделы
+            const sections = document.querySelectorAll('.menu-section');
+            sections.forEach(section => section.classList.remove('active'));
+            
+            // Убираем активный класс со всех навигационных элементов
+            const navItems = document.querySelectorAll('.menu-nav-item');
+            navItems.forEach(item => item.classList.remove('active'));
+            
+            // Показываем выбранный раздел
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Добавляем активный класс к соответствующему навигационному элементу
+            const clickedNav = document.querySelector(`[onclick="showMenuSection('${sectionId}')"]`);
+            if (clickedNav) clickedNav.classList.add('active');
         }
 
-        document.addEventListener('click', (e) => {
-            const deviceBtn = document.getElementById('device-btn');
-            const deviceOptions = document.getElementById('device-options');
-            if (!deviceBtn.contains(e.target) && !deviceOptions.contains(e.target)) {
-                deviceOptions.classList.remove('active');
+        // Закрытие модального окна при клике вне его
+        document.getElementById('main-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'main-modal') {
+                toggleMainMenu();
             }
         });
-
-        function toggleInfo() {
-            const panel = document.getElementById('info-panel');
-            panel.classList.toggle('active');
-        }
 
         let deviceMode = 'pc';
         let activeMode = null;
 
         function setDevice(mode) {
             deviceMode = mode;
-            document.getElementById('device-options').classList.remove('active');
+            // Закрываем главное меню
+            toggleMainMenu();
+            
             if (mode === 'mobile') {
                 document.getElementById('mobile-buttons').classList.add('active');
                 map.off('contextmenu');
                 map.off('click');
                 map.on('click', handleMobileClick);
+                
+                // Показываем уведомление
+                showNotification('Мобильный режим активирован. Выберите действие из панели справа.');
             } else {
                 document.getElementById('mobile-buttons').classList.remove('active');
                 map.off('click');
@@ -912,7 +1243,46 @@
                     targetMarker.on('dragend', calculateFromMap);
                     calculateFromMap();
                 });
+                
+                // Показываем уведомление
+                showNotification('ПК режим активирован. ПКМ - миномет, ЛКМ - цель.');
             }
+        }
+
+        // Функция уведомлений
+        function showNotification(text) {
+            // Создаем элемент уведомления если его нет
+            let notification = document.getElementById('notification');
+            if (!notification) {
+                notification = document.createElement('div');
+                notification.id = 'notification';
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 50%;
+                    transform: translateX(50%);
+                    background: linear-gradient(135deg, #2f855a, #38a169);
+                    color: #e2e8f0;
+                    padding: 15px 25px;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 15px rgba(47, 133, 90, 0.4);
+                    z-index: 3000;
+                    font-weight: bold;
+                    opacity: 0;
+                    transition: all 0.3s ease;
+                    pointer-events: none;
+                `;
+                document.body.appendChild(notification);
+            }
+            
+            notification.textContent = text;
+            notification.style.opacity = '1';
+            notification.style.transform = 'translateX(50%) translateY(0)';
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(50%) translateY(-20px)';
+            }, 3000);
         }
 
         function toggleMobileButtons() {
