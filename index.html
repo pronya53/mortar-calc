@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Калькулятор миномета с картой Удачное</title>
+
+    <meta property="og:title" content="Минометный калькулятор для Arma Reforger">
+    <meta property="og:description" content="Точный минометный калькулятор для Arma Reforger. Быстро находите дальность и угол стрельбы, гарантируя максимальную точность без лишних усилий. Мгновенный расчет углов и дистанций.">
+    <meta property="og:url" content="https://mortar-calc.vercel.app/">
+
+    <title>Минометный калькулятор для Arma Reforger</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <style>
@@ -531,21 +536,13 @@
         <div id="menu-container">
             <!-- Левая панель навигации -->
             <div id="menu-sidebar">
-                <div class="menu-nav-item active" onclick="showMenuSection('mortar-section')" data-section="mortar">
+                <div class="menu-nav-item active" onclick="showMenuSection('setup-section')" data-section="setup">
                     <i class="fas fa-crosshairs"></i>
-                    <span>Тип миномета</span>
-                </div>
-                <div class="menu-nav-item" onclick="showMenuSection('language-section')" data-section="language">
-                    <i class="fas fa-globe"></i>
-                    <span>Язык</span>
+                    <span>Предустановки</span>
                 </div>
                 <div class="menu-nav-item" onclick="showMenuSection('device-section')" data-section="device">
                     <i class="fas fa-mobile-alt"></i>
                     <span>Устройство</span>
-                </div>
-                <div class="menu-nav-item" onclick="showMenuSection('map-section')" data-section="map">
-                    <i class="fas fa-map"></i>
-                    <span>Выбор карты</span>
                 </div>
                 <div class="menu-nav-item" onclick="showMenuSection('calc-section')" data-section="calc">
                     <i class="fas fa-calculator"></i>
@@ -560,7 +557,7 @@
             <!-- Правая панель содержимого -->
             <div id="menu-content">
                 <!-- Раздел типа миномета -->
-                <div id="mortar-section" class="menu-section active">
+                <div id="setup" class="menu-section active">
                     <h2><i class="fas fa-crosshairs"></i> Тип оружия</h2>
                     <div class="military-form-group">
                         <label class="military-label" for="mortar">Выберите тип оружия:</label>
@@ -569,11 +566,7 @@
                             <option value="ru">RU (О-832Д 82mm)</option>
                             <option value="grad">BM-21 Grad (122mm)</option>
                         </select>
-                    </div>
-                </div>
-
-                <!-- Раздел языка -->
-                <div id="language-section" class="menu-section">
+                    </div><br />
                     <h2><i class="fas fa-globe"></i> Язык интерфейса</h2>
                     <div class="military-form-group">
                         <label class="military-label" for="language">Выберите язык:</label>
@@ -581,6 +574,15 @@
                             <option value="ru">Русский</option>
                             <option value="uk">Українська</option>
                             <option value="en">English</option>
+                        </select>
+                    </div><br />
+                    <h2><i class="fas fa-map"></i> Выбор карты</h2>
+                    <div class="military-form-group">
+                        <label class="military-label" for="layer">Выберите карту:</label>
+                        <select id="layer" class="military-select" onchange="changeLayer()">
+                            <option value="udache">Удачное</option>
+                            <option value="osm">Сергеевка</option> <!-- ЗАМЕНИТЕ PNG: sergeevka.png -->
+                            <option value="satellite">Донецкий Аэропорт</option> <!-- ЗАМЕНИТЕ PNG: don_air.png -->
                         </select>
                     </div>
                 </div>
@@ -599,17 +601,7 @@
                 </div>
 
                 <!-- Раздел выбора карты -->
-                <div id="map-section" class="menu-section">
-                    <h2><i class="fas fa-map"></i> Выбор карты</h2>
-                    <div class="military-form-group">
-                        <label class="military-label" for="layer">Выберите карту:</label>
-                        <select id="layer" class="military-select" onchange="changeLayer()">
-                            <option value="udache">Удачное</option>
-                            <option value="osm">Сергеевка</option> <!-- ЗАМЕНИТЕ PNG: sergeevka.png -->
-                            <option value="satellite">Донецкий Аэропорт</option> <!-- ЗАМЕНИТЕ PNG: don_air.png -->
-                        </select>
-                    </div>
-                </div>
+                
 
                 <!-- Раздел расчетов -->
                 <div id="calc-section" class="menu-section">
