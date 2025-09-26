@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <meta property="og:title" content="Минометный калькулятор для Arma Reforger">
-    <meta property="og:description" content="Точный минометный калькулятор для Arma Reforger. Быстро находите дальность и угол стрельбы, гарантируя максимальную точность без лишних усилий. Мгновенный расчет углов и дистанций.">
+    <meta property="og:description"
+        content="Точный минометный калькулятор для Arma Reforger. Быстро находите дальность и угол стрельбы, гарантируя максимальную точность без лишних усилий. Мгновенный расчет углов и дистанций.">
     <meta property="og:url" content="https://mortar-calc.vercel.app/">
 
     <title>Минометный калькулятор для Arma Reforger</title>
@@ -15,6 +17,7 @@
         * {
             box-sizing: border-box;
         }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
@@ -22,6 +25,7 @@
             background: #1a202c;
             color: #e2e8f0;
         }
+
         #map {
             position: fixed;
             top: 0;
@@ -29,7 +33,7 @@
             width: 100vw;
             height: 100vh;
         }
-        
+
         /* Плавающая кнопка меню справа */
         #main-menu-btn {
             position: fixed;
@@ -51,11 +55,13 @@
             transition: all 0.3s ease;
             z-index: 1500;
         }
+
         #main-menu-btn:hover {
             transform: translateY(-50%) scale(1.1);
             box-shadow: 0 6px 25px rgba(47, 133, 90, 0.6);
             background: linear-gradient(135deg, #38a169, #48bb78);
         }
+
         #main-menu-btn:active {
             transform: translateY(-50%) scale(0.95);
         }
@@ -73,6 +79,7 @@
             backdrop-filter: blur(5px);
             animation: fadeIn 0.3s ease;
         }
+
         #main-modal.active {
             display: flex;
             align-items: center;
@@ -111,15 +118,18 @@
             border-left: 4px solid transparent;
             color: #e2e8f0;
         }
+
         .menu-nav-item:hover {
             background: rgba(255, 255, 255, 0.1);
             border-left-color: #68d391;
         }
+
         .menu-nav-item.active {
             background: rgba(255, 255, 255, 0.15);
             border-left-color: #68d391;
             color: #68d391;
         }
+
         .menu-nav-item i {
             width: 20px;
             margin-right: 12px;
@@ -138,9 +148,11 @@
         .menu-section {
             display: none;
         }
+
         .menu-section.active {
             display: block;
         }
+
         .menu-section h2 {
             color: #68d391;
             margin-bottom: 20px;
@@ -165,6 +177,7 @@
             transition: all 0.3s ease;
             z-index: 2001;
         }
+
         #menu-close-btn:hover {
             background: #c53030;
             transform: scale(1.1);
@@ -172,23 +185,32 @@
 
         /* Анимации */
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
+
         @keyframes slideIn {
-            from { 
+            from {
                 transform: scale(0.8) translateY(-50px);
                 opacity: 0;
             }
-            to { 
+
+            to {
                 transform: scale(1) translateY(0);
                 opacity: 1;
             }
         }
+
         /* Стили для форм в военной тематике */
         .military-form-group {
             margin-bottom: 20px;
         }
+
         .military-label {
             display: block;
             color: #68d391;
@@ -198,7 +220,9 @@
             text-transform: uppercase;
             letter-spacing: 1px;
         }
-        .military-select, .military-input {
+
+        .military-select,
+        .military-input {
             width: 100%;
             padding: 12px;
             background: #2d3748;
@@ -208,15 +232,19 @@
             font-size: 14px;
             transition: all 0.3s ease;
         }
-        .military-select:focus, .military-input:focus {
+
+        .military-select:focus,
+        .military-input:focus {
             outline: none;
             border-color: #68d391;
             box-shadow: 0 0 10px rgba(104, 211, 145, 0.3);
         }
+
         .military-select option {
             background: #2d3748;
             color: #e2e8f0;
         }
+
         .military-btn {
             background: linear-gradient(135deg, #2f855a, #38a169);
             color: #e2e8f0;
@@ -231,14 +259,17 @@
             width: 100%;
             margin-top: 10px;
         }
+
         .military-btn:hover {
             background: linear-gradient(135deg, #38a169, #48bb78);
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(47, 133, 90, 0.4);
         }
+
         .military-btn:active {
             transform: translateY(0);
         }
+
         #result-panel {
             display: none;
             position: fixed;
@@ -255,10 +286,12 @@
             color: #e2e8f0;
             backdrop-filter: blur(10px);
         }
+
         #result-panel.active {
             display: block;
             animation: slideUp 0.4s ease;
         }
+
         #result-panel .close-btn {
             position: absolute;
             top: 10px;
@@ -276,20 +309,24 @@
             justify-content: center;
             transition: all 0.3s ease;
         }
+
         #result-panel .close-btn:hover {
             background: #c53030;
             transform: scale(1.1);
         }
+
         @keyframes slideUp {
-            from { 
+            from {
                 transform: translateY(100px);
                 opacity: 0;
             }
-            to { 
+
+            to {
                 transform: translateY(0);
                 opacity: 1;
             }
         }
+
         /* Быстрое меню для очистки карты */
         #quick-actions {
             position: fixed;
@@ -299,6 +336,7 @@
             display: flex;
             gap: 10px;
         }
+
         .quick-btn {
             width: 50px;
             height: 50px;
@@ -314,11 +352,13 @@
             transition: all 0.3s ease;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
         }
+
         .quick-btn:hover {
             background: linear-gradient(135deg, #4a5568, #68d391);
             transform: translateY(-3px);
             box-shadow: 0 6px 15px rgba(104, 211, 145, 0.4);
         }
+
         #mobile-buttons {
             display: none;
             position: fixed;
@@ -334,10 +374,12 @@
             z-index: 1000;
             min-width: 200px;
         }
+
         #mobile-buttons.active {
             display: flex;
             animation: slideUp 0.4s ease;
         }
+
         #mobile-close-btn {
             position: absolute;
             top: 5px;
@@ -355,10 +397,12 @@
             justify-content: center;
             transition: all 0.3s ease;
         }
+
         #mobile-close-btn:hover {
             background: #c53030;
             transform: scale(1.1);
         }
+
         /* Адаптивные стили */
         @media (max-width: 768px) {
             #main-menu-btn {
@@ -367,13 +411,13 @@
                 height: 50px;
                 font-size: 20px;
             }
-            
+
             #menu-container {
                 width: 95%;
                 height: 90%;
                 flex-direction: column;
             }
-            
+
             #menu-sidebar {
                 width: 100%;
                 height: 80px;
@@ -382,7 +426,7 @@
                 overflow-x: auto;
                 overflow-y: hidden;
             }
-            
+
             .menu-nav-item {
                 min-width: 120px;
                 padding: 10px 15px;
@@ -390,33 +434,35 @@
                 border-left: none;
                 border-bottom: 4px solid transparent;
             }
+
             .menu-nav-item.active,
             .menu-nav-item:hover {
                 border-bottom-color: #68d391;
                 border-left-color: transparent;
             }
-            
+
             #menu-content {
                 padding: 20px;
                 height: calc(100% - 80px);
             }
-            
+
             #quick-actions {
                 top: 10px;
                 left: 10px;
             }
+
             .quick-btn {
                 width: 45px;
                 height: 45px;
                 font-size: 16px;
             }
-            
+
             #mobile-buttons {
                 bottom: 10px;
                 right: 10px;
                 min-width: 180px;
             }
-            
+
             #result-panel {
                 width: calc(100% - 20px);
                 left: 10px;
@@ -428,26 +474,27 @@
             #menu-sidebar {
                 height: 60px;
             }
-            
+
             .menu-nav-item {
                 min-width: 100px;
                 padding: 8px 10px;
                 font-size: 12px;
             }
-            
+
             .menu-nav-item i {
                 font-size: 16px;
                 margin-right: 8px;
             }
-            
+
             #menu-content {
                 padding: 15px;
             }
-            
+
             .menu-section h2 {
                 font-size: 20px;
             }
         }
+
         #info-panel {
             display: none;
             position: fixed;
@@ -464,15 +511,19 @@
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
             z-index: 2000;
         }
+
         #info-panel.active {
             display: block;
         }
+
         #info-panel h2 {
             margin-top: 0;
         }
+
         #info-panel ul {
             padding-left: 20px;
         }
+
         #info-panel button {
             background-color: #333;
             color: white;
@@ -483,9 +534,11 @@
             margin-top: 15px;
             transition: background-color 0.3s;
         }
+
         #info-panel button:hover {
             background-color: #555;
         }
+
         #credits {
             position: fixed;
             bottom: 10px;
@@ -500,6 +553,7 @@
             border-radius: 15px;
             border: 1px solid #4a5568;
         }
+
         #language-control {
             position: fixed;
             top: 80px;
@@ -510,14 +564,16 @@
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
             z-index: 1000;
         }
+
         .close-btn:hover {
             color: #555;
         }
     </style>
 </head>
+
 <body>
     <div id="map"></div>
-    
+
     <!-- Быстрые действия -->
     <div id="quick-actions">
         <button class="quick-btn" onclick="clearMap()" title="Очистить карту">
@@ -537,7 +593,7 @@
             <!-- Левая панель навигации -->
             <div id="menu-sidebar">
                 <div class="menu-nav-item active" onclick="showMenuSection('setup-section')" data-section="setup">
-                    <i class="fas fa-crosshairs"></i>
+                    <i class="fas fa-gears"></i>
                     <span>Предустановки</span>
                 </div>
                 <div class="menu-nav-item" onclick="showMenuSection('device-section')" data-section="device">
@@ -553,32 +609,31 @@
                     <span>Информация</span>
                 </div>
             </div>
-            
+
             <!-- Правая панель содержимого -->
             <div id="menu-content">
                 <!-- Раздел типа миномета -->
-                <div id="setup" class="menu-section active">
-                    <h2><i class="fas fa-crosshairs"></i> Тип оружия</h2>
+                <div id="setup-section" class="menu-section active">
+                    <h2><i class="fas fa-gears"></i> Предустановки</h2>
                     <div class="military-form-group">
-                        <label class="military-label" for="mortar">Выберите тип оружия:</label>
+                        <label class="military-label" for="mortar"><i class="fas fa-crosshairs"></i> Тип оружия:</label>
                         <select id="mortar" class="military-select">
                             <option value="ua">UA (US M821 HE 81mm)</option>
                             <option value="ru">RU (О-832Д 82mm)</option>
                             <option value="grad">BM-21 Grad (122mm)</option>
                         </select>
                     </div><br />
-                    <h2><i class="fas fa-globe"></i> Язык интерфейса</h2>
                     <div class="military-form-group">
-                        <label class="military-label" for="language">Выберите язык:</label>
+                        <label class="military-label" for="language"><i class="fas fa-globe"></i> Язык
+                            интерфейса:</label>
                         <select id="language" class="military-select" onchange="changeLanguage()">
                             <option value="ru">Русский</option>
                             <option value="uk">Українська</option>
                             <option value="en">English</option>
                         </select>
                     </div><br />
-                    <h2><i class="fas fa-map"></i> Выбор карты</h2>
                     <div class="military-form-group">
-                        <label class="military-label" for="layer">Выберите карту:</label>
+                        <label class="military-label" for="layer"><i class="fas fa-map"></i> Выбор карты:</label>
                         <select id="layer" class="military-select" onchange="changeLayer()">
                             <option value="udache">Удачное</option>
                             <option value="osm">Сергеевка</option> <!-- ЗАМЕНИТЕ PNG: sergeevka.png -->
@@ -601,7 +656,7 @@
                 </div>
 
                 <!-- Раздел выбора карты -->
-                
+
 
                 <!-- Раздел расчетов -->
                 <div id="calc-section" class="menu-section">
@@ -630,7 +685,8 @@
                         <h3>Как использовать:</h3>
                         <ul>
                             <li>Выберите тип оружия в настройках.</li>
-                            <li>На ПК: Правый клик - поставить миномет (красный маркер), левый клик - поставить цель (синий маркер).</li>
+                            <li>На ПК: Правый клик - поставить миномет (красный маркер), левый клик - поставить цель
+                                (синий маркер).</li>
                             <li>На мобильном: Выберите режим (миномет или цель) и кликните на карту.</li>
                             <li>Перетаскивайте маркеры для корректировки.</li>
                             <li>Используйте ручной ввод расстояния и высот для расчета без карты.</li>
@@ -937,7 +993,7 @@
         // ========================================
         // Для карты "Сергеевка" - замените файл ниже на ваш PNG файл:
         const sergeevkaLayer = L.imageOverlay('sergeevka.png', udacheBounds);
-        
+
         // Для карты "Донецкий Аэропорт" - замените файл ниже на ваш PNG файл:
         const donAirLayer = L.imageOverlay('IMG_20250917_162944_112[1].png', udacheBounds);
         // ========================================
@@ -958,7 +1014,7 @@
         function changeLayer() {
             const layer = document.getElementById('layer').value;
             map.removeLayer(currentLayer);
-            
+
             if (layer === 'udache') {
                 currentLayer = udacheLayer;
                 map.setView([mapHeight / 2, mapWidth / 2], -1);
@@ -998,9 +1054,9 @@
                     showNotification('Карта "Донецкий Аэропорт" (спутник)');
                 }
             }
-            
+
             map.addLayer(currentLayer);
-            
+
             // Очищаем маркеры при смене карты
             if (mortarMarker) {
                 map.removeLayer(mortarMarker);
@@ -1183,14 +1239,14 @@
             // Скрываем все разделы
             const sections = document.querySelectorAll('.menu-section');
             sections.forEach(section => section.classList.remove('active'));
-            
+
             // Убираем активный класс со всех навигационных элементов
             const navItems = document.querySelectorAll('.menu-nav-item');
             navItems.forEach(item => item.classList.remove('active'));
-            
+
             // Показываем выбранный раздел
             document.getElementById(sectionId).classList.add('active');
-            
+
             // Добавляем активный класс к соответствующему навигационному элементу
             const clickedNav = document.querySelector(`[onclick="showMenuSection('${sectionId}')"]`);
             if (clickedNav) clickedNav.classList.add('active');
@@ -1210,13 +1266,13 @@
             deviceMode = mode;
             // Закрываем главное меню
             toggleMainMenu();
-            
+
             if (mode === 'mobile') {
                 document.getElementById('mobile-buttons').classList.add('active');
                 map.off('contextmenu');
                 map.off('click');
                 map.on('click', handleMobileClick);
-                
+
                 // Показываем уведомление
                 showNotification('Мобильный режим активирован. Выберите действие из панели справа.');
             } else {
@@ -1236,7 +1292,7 @@
                     targetMarker.on('dragend', calculateFromMap);
                     calculateFromMap();
                 });
-                
+
                 // Показываем уведомление
                 showNotification('ПК режим активирован. ПКМ - миномет, ЛКМ - цель.');
             }
@@ -1267,11 +1323,11 @@
                 `;
                 document.body.appendChild(notification);
             }
-            
+
             notification.textContent = text;
             notification.style.opacity = '1';
             notification.style.transform = 'translateX(50%) translateY(0)';
-            
+
             setTimeout(() => {
                 notification.style.opacity = '0';
                 notification.style.transform = 'translateX(50%) translateY(-20px)';
@@ -1324,7 +1380,5 @@
         updateInfoPanel();
     </script>
 </body>
+
 </html>
-
-
-
