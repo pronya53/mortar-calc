@@ -13,7 +13,6 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            overflow: hidden;
             background: #1a202c;
             color: #e2e8f0;
         }
@@ -23,6 +22,7 @@
             left: 0;
             width: 100vw;
             height: 100vh;
+            z-index: 1;
         }
         
         /* Плавающая кнопка меню справа */
@@ -508,6 +508,30 @@
         .close-btn:hover {
             color: #555;
         }
+        /* Стили для сетки */
+        .grid-line {
+            stroke: rgba(255, 255, 255, 0.5);
+            stroke-width: 2;
+        }
+        .grid-line-minor {
+            stroke: rgba(255, 255, 255, 0.3);
+            stroke-width: 1;
+            stroke-dasharray: 5,5;
+        }
+        /* Стили для checkbox */
+        .military-checkbox {
+            margin-right: 10px;
+            transform: scale(1.2);
+            accent-color: #68d391;
+        }
+        .checkbox-label {
+            color: #68d391;
+            font-weight: bold;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -531,27 +555,27 @@
         <div id="menu-container">
             <!-- Левая панель навигации -->
             <div id="menu-sidebar">
-                <div class="menu-nav-item active" onclick="showMenuSection('mortar-section')" data-section="mortar">
+                <div class="menu-nav-item active" onclick="showMenuSection('mortar-section')" data-section="mortar-section">
                     <i class="fas fa-crosshairs"></i>
                     <span id="nav-mortar">Тип миномета</span>
                 </div>
-                <div class="menu-nav-item" onclick="showMenuSection('language-section')" data-section="language">
+                <div class="menu-nav-item" onclick="showMenuSection('language-section')" data-section="language-section">
                     <i class="fas fa-globe"></i>
                     <span id="nav-language">Язык</span>
                 </div>
-                <div class="menu-nav-item" onclick="showMenuSection('device-section')" data-section="device">
+                <div class="menu-nav-item" onclick="showMenuSection('device-section')" data-section="device-section">
                     <i class="fas fa-mobile-alt"></i>
                     <span id="nav-device">Устройство</span>
                 </div>
-                <div class="menu-nav-item" onclick="showMenuSection('map-section')" data-section="map">
+                <div class="menu-nav-item" onclick="showMenuSection('map-section')" data-section="map-section">
                     <i class="fas fa-map"></i>
                     <span id="nav-map">Выбор карты</span>
                 </div>
-                <div class="menu-nav-item" onclick="showMenuSection('calc-section')" data-section="calc">
+                <div class="menu-nav-item" onclick="showMenuSection('calc-section')" data-section="calc-section">
                     <i class="fas fa-calculator"></i>
                     <span id="nav-calc">Расчеты</span>
                 </div>
-                <div class="menu-nav-item" onclick="showMenuSection('info-section')" data-section="info">
+                <div class="menu-nav-item" onclick="showMenuSection('info-section')" data-section="info-section">
                     <i class="fas fa-info-circle"></i>
                     <span id="nav-info">Информация</span>
                 </div>
@@ -608,6 +632,10 @@
                             <option value="sergeevka">Сергеевка</option>
                             <option value="satellite">Донецкий Аэропорт</option>
                         </select>
+                    </div>
+                    <div class="military-form-group">
+                        <label class="checkbox-label" for="grid-toggle" id="grid-toggle-label">Показать сетку</label>
+                        <input type="checkbox" id="grid-toggle" class="military-checkbox" checked onchange="toggleGrid()">
                     </div>
                 </div>
 
@@ -674,6 +702,8 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
+        console.log('Starting map initialization...');
+
         // Language data
         const translations = {
             ru: {
@@ -694,6 +724,7 @@
                     sergeevka: 'Сергеевка',
                     satellite: 'Донецкий Аэропорт'
                 },
+                gridToggleLabel: 'Показать сетку',
                 languageLabel: 'Язык:',
                 languageOptions: {
                     ru: 'Русский',
@@ -756,6 +787,7 @@
                     sergeevka: 'Сергеївка',
                     satellite: 'Донецький Аеропорт'
                 },
+                gridToggleLabel: 'Показати сітку',
                 languageLabel: 'Мова:',
                 languageOptions: {
                     ru: 'російська',
@@ -818,6 +850,7 @@
                     sergeevka: 'Sergeevka',
                     satellite: 'Donetsk Airport'
                 },
+                gridToggleLabel: 'Show Grid',
                 languageLabel: 'Language:',
                 languageOptions: {
                     ru: 'Russian',
@@ -888,6 +921,7 @@
             document.getElementById('h_target-label').textContent = t.h_targetLabel;
             document.getElementById('calculate-manual-btn').textContent = t.calculateManualBtn;
             document.getElementById('layer-label').textContent = t.layerLabel;
+            document.getElementById('grid-toggle-label').textContent = t.gridToggleLabel;
             document.getElementById('language-label').textContent = t.languageLabel;
             document.getElementById('pc-btn').textContent = t.pcBtn;
             document.getElementById('mobile-btn').textContent = t.mobileBtn;
@@ -958,29 +992,107 @@
         // Инициализация карты с простой системой координат
         let mapWidth = 10240;
         let mapHeight = 5120; 
-        const map = L.map('map', {
-            crs: L.CRS.Simple,
-            minZoom: -2,
-            maxZoom: 2,
-            zoom: -1,
-            center: [mapHeight / 2, mapWidth / 2],
-            maxBounds: [[0, 0], [mapHeight, mapWidth]],
-            maxBoundsViscosity: 1.0
-        });
+        let map;
+        try {
+            map = L.map('map', {
+                crs: L.CRS.Simple,
+                minZoom: -2,
+                maxZoom: 2,
+                zoom: -1,
+                center: [mapHeight / 2, mapWidth / 2],
+                maxBounds: [[0, 0], [mapHeight, mapWidth]],
+                maxBoundsViscosity: 1.0
+            });
+            console.log('Map initialized successfully');
+        } catch (error) {
+            console.error('Error initializing map:', error);
+        }
 
         // Наложение карты Удачное
         const udacheBounds = [[0, 0], [5120, 10240]];
-        const udacheLayer = L.imageOverlay('IMG_20250917_162744_657.png', udacheBounds).addTo(map);
+        let udacheLayer;
+        try {
+            udacheLayer = L.imageOverlay('IMG_20250917_162744_657.png', udacheBounds).addTo(map);
+            console.log('Udache layer added');
+        } catch (error) {
+            console.error('Error loading Udache layer:', error);
+        }
 
         // Размеры для остальных карт
         const donairBounds = [[0, 0], [4352, 4352]];
         const sergeevkaBounds = [[0, 0], [10240, 10240]];
 
         // Карты
-        const sergeevkaLayer = L.imageOverlay('sergeevka.png', sergeevkaBounds);
-        const donAirLayer = L.imageOverlay('donetsk.png', donairBounds);
+        let sergeevkaLayer, donAirLayer;
+        try {
+            sergeevkaLayer = L.imageOverlay('sergeevka.png', sergeevkaBounds);
+            donAirLayer = L.imageOverlay('IMG_20250917_162944_112.png', donairBounds);
+            console.log('Other layers initialized');
+        } catch (error) {
+            console.error('Error initializing other layers:', error);
+        }
 
         let currentLayer = udacheLayer;
+        let gridLayer = L.layerGroup().addTo(map);
+        let minorGridLayer = L.layerGroup();
+        let isGridEnabled = true;
+
+        // Функция для управления отображением сетки
+        function toggleGrid() {
+            isGridEnabled = document.getElementById('grid-toggle').checked;
+            if (isGridEnabled) {
+                gridLayer.addTo(map);
+                if (map.getZoom() >= 0) minorGridLayer.addTo(map);
+            } else {
+                map.removeLayer(gridLayer);
+                map.removeLayer(minorGridLayer);
+            }
+            console.log('Grid toggled:', isGridEnabled);
+        }
+
+        // Функция для отрисовки сетки
+        function drawGrid() {
+            gridLayer.clearLayers();
+            minorGridLayer.clearLayers();
+
+            if (!isGridEnabled) return;
+
+            const majorStep = 1000; // 1 км
+            const minorStep = 100;  // 100 м
+            const zoom = map.getZoom();
+
+            // Определяем размеры карты
+            let width = mapWidth;
+            let height = mapHeight;
+
+            // Основная сетка (1 км)
+            for (let x = 0; x <= width; x += majorStep) {
+                gridLayer.addLayer(L.polyline([[0, x], [height, x]], { className: 'grid-line' }));
+            }
+            for (let y = 0; y <= height; y += majorStep) {
+                gridLayer.addLayer(L.polyline([[y, 0], [y, width]], { className: 'grid-line' }));
+            }
+
+            // Мелкая сетка (100 м), отображается при zoom >= 0
+            if (zoom >= 0) {
+                minorGridLayer.addTo(map);
+                for (let x = 0; x <= width; x += minorStep) {
+                    if (x % majorStep !== 0) {
+                        minorGridLayer.addLayer(L.polyline([[0, x], [height, x]], { className: 'grid-line-minor' }));
+                    }
+                }
+                for (let y = 0; y <= height; y += minorStep) {
+                    if (y % majorStep !== 0) {
+                        minorGridLayer.addLayer(L.polyline([[y, 0], [y, width]], { className: 'grid-line-minor' }));
+                    }
+                }
+            } else {
+                map.removeLayer(minorGridLayer);
+            }
+        }
+
+        // Обновление сетки при зуме
+        map.on('zoomend', drawGrid);
 
         function changeLayer() {
             const layer = document.getElementById('layer').value;
@@ -1012,7 +1124,13 @@
                 showNotification(translations[currentLang].layerOptions.satellite + ' загружена');
             }
             
-            map.addLayer(currentLayer);
+            try {
+                map.addLayer(currentLayer);
+                console.log('Layer changed to:', layer);
+            } catch (error) {
+                console.error('Error adding layer:', error);
+            }
+            drawGrid();
             
             // Очищаем маркеры при смене карты
             if (mortarMarker) {
@@ -1179,16 +1297,14 @@
 
         // Функции главного меню
         function toggleMainMenu() {
+            console.log('Toggling main menu...');
             const modal = document.getElementById('main-modal');
             modal.classList.toggle('active');
-            if (modal.classList.contains('active')) {
-                document.body.style.overflow = 'hidden';
-            } else {
-                document.body.style.overflow = 'hidden'; // Всегда скрываем overflow для карты
-            }
+            console.log('Menu state:', modal.classList.contains('active') ? 'open' : 'closed');
         }
 
         function showMenuSection(sectionId) {
+            console.log('Showing menu section:', sectionId);
             // Скрываем все разделы
             const sections = document.querySelectorAll('.menu-section');
             sections.forEach(section => section.classList.remove('active'));
@@ -1326,15 +1442,18 @@
             }
         }
 
-        map.fitBounds(udacheBounds);
+        try {
+            map.fitBounds(udacheBounds);
+            console.log('Map fit to bounds');
+        } catch (error) {
+            console.error('Error fitting map bounds:', error);
+        }
         updateTexts();
         updateLayerOptions();
         updateMortarOptions();
         updateLanguageOptions();
         updateInfoPanel();
+        drawGrid();
     </script>
 </body>
 </html>
-
-
-
