@@ -21,7 +21,6 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            overflow: hidden;
             background: #1a202c;
             color: #e2e8f0;
         }
@@ -32,6 +31,7 @@
             left: 0;
             width: 100vw;
             height: 100vh;
+            z-index: 1;
         }
 
         /* Плавающая кнопка меню справа */
@@ -568,6 +568,30 @@
         .close-btn:hover {
             color: #555;
         }
+        /* Стили для сетки */
+        .grid-line {
+            stroke: rgba(255, 255, 255, 0.5);
+            stroke-width: 2;
+        }
+        .grid-line-minor {
+            stroke: rgba(255, 255, 255, 0.3);
+            stroke-width: 1;
+            stroke-dasharray: 5,5;
+        }
+        /* Стили для checkbox */
+        .military-checkbox {
+            margin-right: 10px;
+            transform: scale(1.2);
+            accent-color: #68d391;
+        }
+        .checkbox-label {
+            color: #68d391;
+            font-weight: bold;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -596,15 +620,15 @@
                     <i class="fas fa-gears"></i>
                     <span>Предустановки</span>
                 </div>
-                <div class="menu-nav-item" onclick="showMenuSection('device-section')" data-section="device">
+                <div class="menu-nav-item" onclick="showMenuSection('device-section')" data-section="device-section">
                     <i class="fas fa-mobile-alt"></i>
                     <span>Устройство</span>
                 </div>
-                <div class="menu-nav-item" onclick="showMenuSection('calc-section')" data-section="calc">
+                <div class="menu-nav-item" onclick="showMenuSection('calc-section')" data-section="calc-section">
                     <i class="fas fa-calculator"></i>
                     <span>Расчеты</span>
                 </div>
-                <div class="menu-nav-item" onclick="showMenuSection('info-section')" data-section="info">
+                <div class="menu-nav-item" onclick="showMenuSection('info-section')" data-section="info-section">
                     <i class="fas fa-info-circle"></i>
                     <span>Информация</span>
                 </div>
@@ -722,6 +746,8 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
+        console.log('Starting map initialization...');
+
         // Language data
         const translations = {
             ru: {
@@ -742,6 +768,7 @@
                     osm: 'Сергеевка',
                     satellite: 'Донецкий Аэропорт'
                 },
+                gridToggleLabel: 'Показать сетку',
                 languageLabel: 'Язык:',
                 languageOptions: {
                     ru: 'Русский',
@@ -800,6 +827,7 @@
                     osm: 'Сергеївка',
                     satellite: 'Донецький Аеропорт'
                 },
+                gridToggleLabel: 'Показати сітку',
                 languageLabel: 'Мова:',
                 languageOptions: {
                     ru: 'російська',
@@ -858,6 +886,7 @@
                     osm: 'Sergeevka',
                     satellite: 'Donetsk Airport'
                 },
+                gridToggleLabel: 'Show Grid',
                 languageLabel: 'Language:',
                 languageOptions: {
                     ru: 'Russian',
@@ -922,6 +951,7 @@
             document.getElementById('h_target-label').textContent = t.h_targetLabel;
             document.getElementById('calculate-manual-btn').textContent = t.calculateManualBtn;
             document.getElementById('layer-label').textContent = t.layerLabel;
+            document.getElementById('grid-toggle-label').textContent = t.gridToggleLabel;
             document.getElementById('language-label').textContent = t.languageLabel;
             document.getElementById('pc-btn').textContent = t.pcBtn;
             document.getElementById('mobile-btn').textContent = t.mobileBtn;
@@ -995,7 +1025,7 @@
         const sergeevkaLayer = L.imageOverlay('sergeevka.png', udacheBounds);
 
         // Для карты "Донецкий Аэропорт" - замените файл ниже на ваш PNG файл:
-        const donAirLayer = L.imageOverlay('IMG_20250917_162944_112[1].png', udacheBounds);
+        const donAirLayer = L.imageOverlay('DonAirConflict.png', udacheBounds);
         // ========================================
 
         // Резервные онлайн слои (если PNG файлы недоступны)
@@ -1010,6 +1040,66 @@
         });
 
         let currentLayer = udacheLayer;
+        let gridLayer = L.layerGroup().addTo(map);
+        let minorGridLayer = L.layerGroup();
+        let isGridEnabled = true;
+
+        // Функция для управления отображением сетки
+        function toggleGrid() {
+            isGridEnabled = document.getElementById('grid-toggle').checked;
+            if (isGridEnabled) {
+                gridLayer.addTo(map);
+                if (map.getZoom() >= 0) minorGridLayer.addTo(map);
+            } else {
+                map.removeLayer(gridLayer);
+                map.removeLayer(minorGridLayer);
+            }
+            console.log('Grid toggled:', isGridEnabled);
+        }
+
+        // Функция для отрисовки сетки
+        function drawGrid() {
+            gridLayer.clearLayers();
+            minorGridLayer.clearLayers();
+
+            if (!isGridEnabled) return;
+
+            const majorStep = 1000; // 1 км
+            const minorStep = 100;  // 100 м
+            const zoom = map.getZoom();
+
+            // Определяем размеры карты
+            let width = mapWidth;
+            let height = mapHeight;
+
+            // Основная сетка (1 км)
+            for (let x = 0; x <= width; x += majorStep) {
+                gridLayer.addLayer(L.polyline([[0, x], [height, x]], { className: 'grid-line' }));
+            }
+            for (let y = 0; y <= height; y += majorStep) {
+                gridLayer.addLayer(L.polyline([[y, 0], [y, width]], { className: 'grid-line' }));
+            }
+
+            // Мелкая сетка (100 м), отображается при zoom >= 0
+            if (zoom >= 0) {
+                minorGridLayer.addTo(map);
+                for (let x = 0; x <= width; x += minorStep) {
+                    if (x % majorStep !== 0) {
+                        minorGridLayer.addLayer(L.polyline([[0, x], [height, x]], { className: 'grid-line-minor' }));
+                    }
+                }
+                for (let y = 0; y <= height; y += minorStep) {
+                    if (y % majorStep !== 0) {
+                        minorGridLayer.addLayer(L.polyline([[y, 0], [y, width]], { className: 'grid-line-minor' }));
+                    }
+                }
+            } else {
+                map.removeLayer(minorGridLayer);
+            }
+        }
+
+        // Обновление сетки при зуме
+        map.on('zoomend', drawGrid);
 
         function changeLayer() {
             const layer = document.getElementById('layer').value;
@@ -1226,16 +1316,14 @@
 
         // Функции главного меню
         function toggleMainMenu() {
+            console.log('Toggling main menu...');
             const modal = document.getElementById('main-modal');
             modal.classList.toggle('active');
-            if (modal.classList.contains('active')) {
-                document.body.style.overflow = 'hidden';
-            } else {
-                document.body.style.overflow = 'hidden'; // Всегда скрываем overflow для карты
-            }
+            console.log('Menu state:', modal.classList.contains('active') ? 'open' : 'closed');
         }
 
         function showMenuSection(sectionId) {
+            console.log('Showing menu section:', sectionId);
             // Скрываем все разделы
             const sections = document.querySelectorAll('.menu-section');
             sections.forEach(section => section.classList.remove('active'));
@@ -1372,12 +1460,18 @@
             }
         }
 
-        map.fitBounds(udacheBounds);
+        try {
+            map.fitBounds(udacheBounds);
+            console.log('Map fit to bounds');
+        } catch (error) {
+            console.error('Error fitting map bounds:', error);
+        }
         updateTexts();
         updateLayerOptions();
         updateMortarOptions();
         updateLanguageOptions();
         updateInfoPanel();
+        drawGrid();
     </script>
 </body>
 
