@@ -1,0 +1,582 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    background: #1a202c;
+    color: #e2e8f0;
+}
+
+#map {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1;
+}
+
+/* Плавающая кнопка меню справа */
+#main-menu-btn {
+    position: fixed;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2f855a, #38a169);
+    color: #e2e8f0;
+    border: 3px solid #4a5568;
+    cursor: pointer;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(47, 133, 90, 0.4);
+    transition: all 0.3s ease;
+    z-index: 1500;
+}
+
+#main-menu-btn:hover {
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 6px 25px rgba(47, 133, 90, 0.6);
+    background: linear-gradient(135deg, #38a169, #48bb78);
+}
+
+#main-menu-btn:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+/* Центральное модальное окно */
+#main-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 2000;
+    backdrop-filter: blur(5px);
+    animation: fadeIn 0.3s ease;
+}
+
+#main-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Главное окно меню */
+#menu-container {
+    width: 90%;
+    max-width: 900px;
+    height: 80%;
+    max-height: 600px;
+    background: linear-gradient(135deg, #2d3748, #1a202c);
+    border: 2px solid #4a5568;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    display: flex;
+    overflow: hidden;
+    animation: slideIn 0.4s ease;
+}
+
+/* Левая панель навигации */
+#menu-sidebar {
+    width: 250px;
+    background: linear-gradient(180deg, #2f855a, #38a169);
+    padding: 20px 0;
+    border-right: 2px solid #4a5568;
+}
+
+.menu-nav-item {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+    color: #e2e8f0;
+}
+
+.menu-nav-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-left-color: #68d391;
+}
+
+.menu-nav-item.active {
+    background: rgba(255, 255, 255, 0.15);
+    border-left-color: #68d391;
+    color: #68d391;
+}
+
+.menu-nav-item i {
+    width: 20px;
+    margin-right: 12px;
+    font-size: 18px;
+}
+
+/* Правая панель содержимого */
+#menu-content {
+    flex: 1;
+    padding: 30px;
+    overflow-y: auto;
+    background: #1a202c;
+}
+
+/* Заголовки разделов */
+.menu-section {
+    display: none;
+}
+
+.menu-section.active {
+    display: block;
+}
+
+.menu-section h2 {
+    color: #68d391;
+    margin-bottom: 20px;
+    font-size: 24px;
+    border-bottom: 2px solid #4a5568;
+    padding-bottom: 10px;
+}
+
+/* Кнопка закрытия */
+#menu-close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 40px;
+    height: 40px;
+    background: #e53e3e;
+    border: none;
+    border-radius: 50%;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 2001;
+}
+
+#menu-close-btn:hover {
+    background: #c53030;
+    transform: scale(1.1);
+}
+
+/* Анимации */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: scale(0.8) translateY(-50px);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Стили для форм в военной тематике */
+.military-form-group {
+    margin-bottom: 20px;
+}
+
+.military-label {
+    display: block;
+    color: #68d391;
+    font-weight: bold;
+    margin-bottom: 8px;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.military-select,
+.military-input {
+    width: 100%;
+    padding: 12px;
+    background: #2d3748;
+    border: 2px solid #4a5568;
+    border-radius: 8px;
+    color: #e2e8f0;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.military-select:focus,
+.military-input:focus {
+    outline: none;
+    border-color: #68d391;
+    box-shadow: 0 0 10px rgba(104, 211, 145, 0.3);
+}
+
+.military-select option {
+    background: #2d3748;
+    color: #e2e8f0;
+}
+
+.military-btn {
+    background: linear-gradient(135deg, #2f855a, #38a169);
+    color: #e2e8f0;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.military-btn:hover {
+    background: linear-gradient(135deg, #38a169, #48bb78);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(47, 133, 90, 0.4);
+}
+
+.military-btn:active {
+    transform: translateY(0);
+}
+
+#result-panel {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    width: 350px;
+    background: linear-gradient(135deg, #2d3748, #1a202c);
+    border: 2px solid #68d391;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    font-size: 14px;
+    color: #e2e8f0;
+    backdrop-filter: blur(10px);
+}
+
+#result-panel.active {
+    display: block;
+    animation: slideUp 0.4s ease;
+}
+
+#result-panel .close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 30px;
+    height: 30px;
+    background: #e53e3e;
+    border: none;
+    border-radius: 50%;
+    font-size: 16px;
+    cursor: pointer;
+    color: #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+#result-panel .close-btn:hover {
+    background: #c53030;
+    transform: scale(1.1);
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Быстрое меню для очистки карты */
+#quick-actions {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+    display: flex;
+    gap: 10px;
+}
+
+.quick-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2d3748, #4a5568);
+    border: 2px solid #68d391;
+    color: #e2e8f0;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.quick-btn:hover {
+    background: linear-gradient(135deg, #4a5568, #68d391);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(104, 211, 145, 0.4);
+}
+
+#mobile-buttons {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    right: 100px;
+    flex-direction: column;
+    gap: 15px;
+    background: linear-gradient(135deg, #2d3748, #1a202c);
+    border: 2px solid #4a5568;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    min-width: 200px;
+}
+
+#mobile-buttons.active {
+    display: flex;
+    animation: slideUp 0.4s ease;
+}
+
+#mobile-close-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 25px;
+    height: 25px;
+    background: #e53e3e;
+    border: none;
+    border-radius: 50%;
+    font-size: 14px;
+    cursor: pointer;
+    color: #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+#mobile-close-btn:hover {
+    background: #c53030;
+    transform: scale(1.1);
+}
+
+/* Адаптивные стили */
+@media (max-width: 768px) {
+    #main-menu-btn {
+        right: 10px;
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+    }
+
+    #menu-container {
+        width: 95%;
+        height: 90%;
+        flex-direction: column;
+    }
+
+    #menu-sidebar {
+        width: 100%;
+        height: 80px;
+        padding: 10px 0;
+        display: flex;
+        overflow-x: auto;
+        overflow-y: hidden;
+    }
+
+    .menu-nav-item {
+        min-width: 120px;
+        padding: 10px 15px;
+        text-align: center;
+        border-left: none;
+        border-bottom: 4px solid transparent;
+    }
+
+    .menu-nav-item.active,
+    .menu-nav-item:hover {
+        border-bottom-color: #68d391;
+        border-left-color: transparent;
+    }
+
+    #menu-content {
+        padding: 20px;
+        height: calc(100% - 80px);
+    }
+
+    #quick-actions {
+        top: 10px;
+        left: 10px;
+    }
+
+    .quick-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 16px;
+    }
+
+    #mobile-buttons {
+        bottom: 10px;
+        right: 10px;
+        min-width: 180px;
+    }
+
+    #result-panel {
+        width: calc(100% - 20px);
+        left: 10px;
+        bottom: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    #menu-sidebar {
+        height: 60px;
+    }
+
+    .menu-nav-item {
+        min-width: 100px;
+        padding: 8px 10px;
+        font-size: 12px;
+    }
+
+    .menu-nav-item i {
+        font-size: 16px;
+        margin-right: 8px;
+    }
+
+    #menu-content {
+        padding: 15px;
+    }
+
+    .menu-section h2 {
+        font-size: 20px;
+    }
+}
+
+#info-panel {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    max-width: 500px;
+    max-height: 80%;
+    overflow-y: auto;
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    z-index: 2000;
+}
+
+#info-panel.active {
+    display: block;
+}
+
+#info-panel h2 {
+    margin-top: 0;
+}
+
+#info-panel ul {
+    padding-left: 20px;
+}
+
+#info-panel button {
+    background-color: #333;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: background-color 0.3s;
+}
+
+#info-panel button:hover {
+    background-color: #555;
+}
+
+#credits {
+    position: fixed;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    color: #68d391;
+    z-index: 1000;
+    text-align: center;
+    background: rgba(26, 32, 44, 0.8);
+    padding: 5px 10px;
+    border-radius: 15px;
+    border: 1px solid #4a5568;
+}
+
+#language-control {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+}
+
+.close-btn:hover {
+    color: #555;
+}
+
+/* Стили для сетки */
+.grid-line {
+    stroke: rgba(255, 255, 255, 0.5);
+    stroke-width: 2;
+}
+
+.grid-line-minor {
+    stroke: rgba(255, 255, 255, 0.3);
+    stroke-width: 1;
+    stroke-dasharray: 5, 5;
+}
+
+/* Стили для checkbox */
+.military-checkbox {
+    margin-right: 10px;
+    transform: scale(1.2);
+    accent-color: #68d391;
+}
+
+.checkbox-label {
+    color: #68d391;
+    font-weight: bold;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+}
