@@ -1,6 +1,6 @@
 console.log('Starting map initialization...');
 
-let currentLang = 'ru';
+let currentLang = 'ua';
 
 function changeLanguage() {
     currentLang = document.getElementById('language').value;
