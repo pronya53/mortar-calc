@@ -96,7 +96,7 @@ try {
 const udacheBounds = [[0, 0], [5120, 10240]];
 let udacheLayer;
 try {
-    udacheLayer = L.imageOverlay('./assets/images/udachne.png', udacheBounds).addTo(map);
+    udacheLayer = L.imageOverlay('https://raw.githubusercontent.com/pronya53/mortar-calc/refs/heads/main/assets/images/udachne.png', udacheBounds).addTo(map);
     console.log('Udachne layer added');
 } catch (error) {
     console.error('Error loading Udache layer:', error);
@@ -109,8 +109,8 @@ const sergeevkaBounds = [[0, 0], [10240, 10240]];
 // Карты
 let sergeevkaLayer, donAirLayer;
 try {
-    sergeevkaLayer = L.imageOverlay('./assets/images/sergeevka.png', sergeevkaBounds);
-    donAirLayer = L.imageOverlay('./assets/images/DonAirConflict.png', donairBounds);
+    sergeevkaLayer = L.imageOverlay('https://raw.githubusercontent.com/pronya53/mortar-calc/refs/heads/main/assets/images/sergeevka.png', sergeevkaBounds);
+    donAirLayer = L.imageOverlay('https://raw.githubusercontent.com/pronya53/mortar-calc/refs/heads/main/assets/images/DonAirConflict.png', donairBounds);
     console.log('Other layers initialized');
 } catch (error) {
     console.error('Error initializing other layers:', error);
