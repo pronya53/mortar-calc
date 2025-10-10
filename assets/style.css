@@ -259,6 +259,7 @@ body {
     color: #e2e8f0;
     border: none;
     padding: 12px 20px;
+    display: flex;
     border-radius: 8px;
     cursor: pointer;
     font-weight: bold;
@@ -707,7 +708,9 @@ body div.controls button i {
 .history-item button {
     width: 30px;
     aspect-ratio: 1;
-    padding: 5px;
+    padding: 0;
+    align-items: center;
+    justify-content: center;
 }
 
 a {

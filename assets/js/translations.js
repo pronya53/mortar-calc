@@ -13,7 +13,7 @@ const translations = {
         calculateManualBtn: 'Рассчитать вручную',
         layerLabel: 'Выбор карты:',
         layerOptions: {
-            udache: 'Удачное',
+            udachne: 'Удачное',
             sergeevka: 'Сергеевка',
             satellite: 'Донецкий Аэропорт'
         },
@@ -69,7 +69,7 @@ const translations = {
         calculateManualBtn: 'Розрахувати вручну',
         layerLabel: 'Вибір карти:',
         layerOptions: {
-            udache: 'Удачне',
+            udachne: 'Удачне',
             sergeevka: 'Сергеївка',
             satellite: 'Донецький Аеропорт'
         },
@@ -125,7 +125,7 @@ const translations = {
         calculateManualBtn: 'Calculate Manually',
         layerLabel: 'Map Selection:',
         layerOptions: {
-            udache: 'Udachne',
+            udachne: 'Udachne',
             sergeevka: 'Sergeevka',
             satellite: 'Donetsk Airport'
         },

@@ -20,9 +20,6 @@
 
 <body>
     <div id="map"></div>
-
-
-
     <button id="main-menu-btn" onclick="toggleMainMenu()" title="Открыть меню">
         <i class="fas fa-cog"></i>
     </button>
@@ -75,7 +72,7 @@
                     <div class="military-form-group">
                         <label class="military-label" for="layer" id="layer-label"></label>
                         <select id="layer" class="military-select" onchange="changeLayer()">
-                            <option value="udache"></option>
+                            <option value="udachne"></option>
                             <option value="sergeevka"></option>
                             <option value="satellite"></option>
                         </select>
@@ -127,7 +124,13 @@
     </div>
     <div id="history-panel">
         <span id="history-title"></span>
-        <div id="history-list"></div>
+        <div id="history-list">
+            <div class="history-item" guid='${JSON.stringify(m)}'>
+                <a href="javascript:void(0)" ondblclick="renameHistoryItem(this)" onclick="loadPointsFrom(this)"
+                    class="history-text">Point №${i}</a>
+                <button class="military-btn" onclick="deleteHistoryItem(this)"><i class="fa fa-close"></i></button>
+            </div>
+        </div>
     </div>
     <div class="controls">
         <button id="toggleHistoryBtn" onclick="toggleHistory();">
@@ -158,8 +161,6 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="./assets/js/translations.js"></script>
     <script src="./assets/js/index.js"></script>
-
-
 </body>
 
 </html>

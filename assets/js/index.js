@@ -15,10 +15,6 @@ function changeLanguage() {
     document.getElementById('h_target').placeholder = currentLang === 'ru' ? 'например, 120' : (currentLang === 'uk' ? 'наприклад, 120' : 'e.g., 120');
 }
 
-function deleteHistoryItem(i) {
-    i.parentNode.outerHTML = ``
-}
-
 function toggleHistory() {
     document.getElementById('history-panel').classList.toggle('active')
     document.getElementById('toggleHistoryBtn').classList.toggle('active')
@@ -58,7 +54,7 @@ function updateTexts() {
 function updateLayerOptions() {
     const t = translations[currentLang];
     const select = document.getElementById('layer');
-    select.options[0].text = t.layerOptions.udache;
+    select.options[0].text = t.layerOptions.udachne;
     select.options[1].text = t.layerOptions.sergeevka;
     select.options[2].text = t.layerOptions.satellite;
 }
@@ -103,13 +99,13 @@ try {
 }
 
 // Наложение карты Удачное
-const udacheBounds = [[0, 0], [5120, 10240]];
-let udacheLayer;
+const udachneBounds = [[0, 0], [5120, 10240]];
+let udachneLayer;
 try {
-    udacheLayer = L.imageOverlay('./assets/images/udachne.png', udacheBounds).addTo(map);
+    udachneLayer = L.imageOverlay('./assets/images/udachne.png', udachneBounds).addTo(map);
     console.log('Udachne layer added');
 } catch (error) {
-    console.error('Error loading Udache layer:', error);
+    console.error('Error loading udachne layer:', error);
 }
 
 // Размеры для остальных карт
@@ -126,7 +122,7 @@ try {
     console.error('Error initializing other layers:', error);
 }
 
-let currentLayer = udacheLayer;
+let currentLayer = udachneLayer;
 let gridLayer = L.layerGroup().addTo(map);
 let minorGridLayer = L.layerGroup();
 let isGridEnabled = true;
@@ -188,18 +184,20 @@ function drawGrid() {
 // Обновление сетки при зуме
 map.on('zoomend', drawGrid);
 
+let tempguid = {}
+
 function changeLayer() {
     const layer = document.getElementById('layer').value;
     map.removeLayer(currentLayer);
 
-    if (layer === 'udache') {
+    if (layer === 'udachne') {
         mapWidth = 10240;
         mapHeight = 5120;
-        currentLayer = udacheLayer;
+        currentLayer = udachneLayer;
         map.setView([mapHeight / 2, mapWidth / 2], -1);
         map.options.crs = L.CRS.Simple;
-        map.setMaxBounds(udacheBounds);
-        showNotification(translations[currentLang].layerOptions.udache + ' загружена');
+        map.setMaxBounds(udachneBounds);
+        showNotification(translations[currentLang].layerOptions.udachne + ' загружена');
     } else if (layer === 'sergeevka') {
         mapHeight = 10240;
         mapWidth = 10240;
@@ -236,6 +234,8 @@ function changeLayer() {
         targetMarker = null;
     }
     document.getElementById('result-panel').classList.remove('active');
+    loadHistoryItems();
+    tempguid = {}
 }
 
 // Маркеры
@@ -278,39 +278,93 @@ function interpolate(data, dist) {
     return null;
 }
 
-let currentGuidance = {
-    pointMortar: [0, 0],
-    pointTarget: [0, 0]
-}
-
-function loadPointsFrom(i) {
-    let save = i.parentNode;
-    currentGuidance = JSON.parse(save.getAttribute("guid"))
-    if (targetMarker) map.removeLayer(targetMarker);
-    if (mortarMarker) map.removeLayer(mortarMarker);
-
-    clearMap();
-
-    mortarMarker = L.marker({ lat: currentGuidance.pointMortar[0], lng: currentGuidance.pointMortar[1] }, { draggable: true, icon: L.divIcon({ className: 'mortar-icon', html: '<div style="background:red;width:10px;height:10px;border-radius:50%;"></div>' }) }).addTo(map);
-    targetMarker = L.marker({ lat: currentGuidance.pointTarget[0], lng: currentGuidance.pointTarget[1] }, { draggable: true, icon: L.divIcon({ className: 'target-icon', html: '<div style="background:blue;width:10px;height:10px;border-radius:50%;"></div>' }) }).addTo(map);
-    targetMarker.bindPopup(translations[currentLang].targetPopup).openPopup();
-    calculateFromMap();
+let guidances = {
+    udachne: [],
+    sergeevka: [],
+    DonAirConflict: []
 }
 
 function saveToHistory() {
-    var res = document.getElementById('result').innerText
-    if (res == '') {
-        showNotification(translations[currentLang].saveToHistoryFailed)
-        return;
-    } else {
-        document.getElementById('history-list').innerHTML += `
-         <div class="history-item" guid='${JSON.stringify(currentGuidance)}'>
-                <a href="javascript:void(0)" onclick="loadPointsFrom(this)" class="history-text">${res.split("\n")[0]}<br>${res.split("\n")[1]}<br>${res.split("\n")[2]}</a>
-                <button class="military-btn" onclick="deleteHistoryItem(this)"><i class="fa fa-close"></i></button>
-            </div>
-        `
+    if (tempguid == {}) {
+        return showNotification(translations[currentLang].saveToHistoryFailed)
+    }
+    guidances[currentLayer._url.split(".")[1].replace("/assets/images/", "")].push({
+        ...tempguid,
+        name: 'New points'
+    })
+    console.log("saved " + currentLayer._url.split(".")[1].replace("/assets/images/", ""))
+    localStorage.setItem("mortar-calc", JSON.stringify(guidances))
+    loadHistoryItems();
+}
+
+function deleteHistoryItem(i) {
+    var gd = guidances[currentLayer._url.split(".")[1].replace("/assets/images/", "")]
+    i = i.parentNode;
+    i.outerHTML = '';
+    var guid = JSON.parse(i.getAttribute("guid"));
+    gd.splice(gd.indexOf(guid), 1)
+    localStorage.setItem("mortar-calc", JSON.stringify(guidances))
+}
+
+function renameHistoryItem(i) {
+    var guid = JSON.parse(i.parentNode.getAttribute("guid"))
+    i.outerHTML = `<input onfocusout="runRenameHistoryItemFocus(this)" onkeydown="runRenameHistoryItem(event)" class="history-text" id="name" value="${guid.name}">`
+}
+
+function runRenameHistoryItem(event) {
+    event = event || window.event;
+    var key = event.key || event.keyCode;
+    if (key === 'Enter' || key === 13) {
+        var inputEl = event.target || event.srcElement;
+        var parent = inputEl.parentNode;
+        var gd = guidances[currentLayer._url.split(".")[1].replace("/assets/images/", "")];
+        var guid = JSON.parse(parent.getAttribute("guid"));
+        const idx = gd.findIndex(item => JSON.stringify(item) === JSON.stringify(guid));
+        if (idx !== -1) {
+            gd[idx].name = inputEl.value;
+        }
+        localStorage.setItem("mortar-calc", JSON.stringify(guidances))
+        loadHistoryItems()
+    }
+}
+
+function runRenameHistoryItemFocus(i) {
+    var gd = guidances[currentLayer._url.split(".")[1].replace("/assets/images/", "")];
+    var guid = JSON.parse(i.parentNode.getAttribute("guid"));
+    const idx = gd.findIndex(item => JSON.stringify(item) === JSON.stringify(guid));
+    if (idx !== -1) {
+        gd[idx].name = i.value;
+    }
+    localStorage.setItem("mortar-calc", JSON.stringify(guidances))
+    loadHistoryItems()
+}
+
+function loadHistoryItems() {
+    if (localStorage.getItem("mortar-calc") != null) {
+        guidances = JSON.parse(localStorage.getItem("mortar-calc"))
     }
 
+    document.getElementById('history-list').innerHTML = "";
+    guidances[currentLayer._url.split(".")[1].replace("/assets/images/", "")].forEach(m => {
+        document.getElementById('history-list').innerHTML += `
+        <div class="history-item" guid='${JSON.stringify(m)}'>
+                <a href="javascript:void(0)" ondblclick="renameHistoryItem(this)" onclick="loadPointsFrom(this)" class="history-text">${m.name}</a>
+                <button class="military-btn" onclick="deleteHistoryItem(this)"><i class="fa fa-close"></i></button>
+            </div>
+            `
+    })
+}
+loadHistoryItems();
+
+function loadPointsFrom(i) {
+    i = i.parentNode;
+    var obj = JSON.parse(i.getAttribute("guid"));
+    if (targetMarker) map.removeLayer(targetMarker);
+    if (mortarMarker) map.removeLayer(mortarMarker);
+
+    targetMarker = L.marker({ lat: obj.pointTarget[0], lng: obj.pointTarget[1] }, { draggable: true, icon: L.divIcon({ className: 'target-icon', html: '<div style="background:blue;width:10px;height:10px;border-radius:50%;"></div>' }) }).addTo(map);
+    mortarMarker = L.marker({ lat: obj.pointMortar[0], lng: obj.pointMortar[1] }, { draggable: true, icon: L.divIcon({ className: 'mortar-icon', html: '<div style="background:red;width:10px;height:10px;border-radius:50%;"></div>' }) }).addTo(map);
+    targetMarker.bindPopup(translations[currentLang].targetPopup).openPopup();
 }
 
 // Обработчики событий карты
@@ -318,7 +372,7 @@ map.on('contextmenu', (e) => {
     if (deviceMode !== 'pc') return;
     if (mortarMarker) map.removeLayer(mortarMarker);
     mortarMarker = L.marker(e.latlng, { draggable: true, icon: L.divIcon({ className: 'mortar-icon', html: '<div style="background:red;width:10px;height:10px;border-radius:50%;"></div>' }) }).addTo(map);
-    currentGuidance.pointMortar = [e.latlng.lat, e.latlng.lng];
+    tempguid.pointMortar = [e.latlng.lat, e.latlng.lng];
     mortarMarker.bindPopup(translations[currentLang].mortarPopup).openPopup();
     mortarMarker.on('dragend', calculateFromMap);
     calculateFromMap();
@@ -327,7 +381,7 @@ map.on('contextmenu', (e) => {
 map.on('click', (e) => {
     if (deviceMode !== 'pc') return;
     if (targetMarker) map.removeLayer(targetMarker);
-    currentGuidance.pointTarget = [e.latlng.lat, e.latlng.lng];
+    tempguid.pointTarget = [e.latlng.lat, e.latlng.lng];
     targetMarker = L.marker(e.latlng, { draggable: true, icon: L.divIcon({ className: 'target-icon', html: '<div style="background:blue;width:10px;height:10px;border-radius:50%;"></div>' }) }).addTo(map);
     targetMarker.bindPopup(translations[currentLang].targetPopup).openPopup();
     targetMarker.on('dragend', calculateFromMap);
@@ -431,15 +485,12 @@ function clearMap() {
 function toggleMainMenu() {
     console.log('Toggling main menu...');
     const modal = document.getElementById('main-modal');
-    const trash = document.querySelector('.quick-btn');
     if (!modal.classList.contains('active')) {
-        trash.setAttribute('style', 'style="display: block;"')
         modal.setAttribute("style", "display: flex;")
         setTimeout(() => {
             modal.classList.add('active');
         }, 100)
     } else {
-        trash.setAttribute('style', 'style="display: none;"')
         modal.classList.remove('active');
         setTimeout(() => {
             modal.setAttribute("style", "display: none;")
@@ -589,7 +640,7 @@ function handleMobileClick(e) {
 }
 
 try {
-    map.fitBounds(udacheBounds);
+    map.fitBounds(udachneBounds);
     console.log('Map fit to bounds');
 } catch (error) {
     console.error('Error fitting map bounds:', error);
