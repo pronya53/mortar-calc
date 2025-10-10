@@ -50,7 +50,10 @@ const translations = {
         manualRange: 'Ручное расстояние: ',
         credits: 'Powered by PRONEDROG | За поддержкой Conflict In Europe',
         navSetup: 'Предустановки',
-        setupTitle: 'Меню предустановок'
+        setupTitle: 'Меню предустановок',
+        toggleMenuLabel: 'нажмите за границей меню чтобы его закрыть',
+        saveToHistoryFailed: 'Сначала установите маркеры',
+        historyTitle: 'Сохраненные'
     },
     uk: {
         title: 'Калькулятор міномета з картою Удачне',
@@ -103,7 +106,10 @@ const translations = {
         manualRange: 'Ручна відстань: ',
         credits: 'Powered by PRONEDROG | За підтримки Conflict In Europe',
         navSetup: 'Передустановка',
-        setupTitle: 'Меню передустановок'
+        setupTitle: 'Меню передустановок',
+        toggleMenuLabel: 'натисніть за кордоном меню, щоб його закрити',
+        saveToHistoryFailed: 'Спочатку встановіть маркери',
+        historyTitle: 'Збережені'
     },
     en: {
         title: 'Mortar Calculator with Udachne Map',
@@ -156,6 +162,9 @@ const translations = {
         manualRange: 'Manual Distance: ',
         credits: 'Powered by PRONEDROG | Supported by Conflict In Europe',
         navSetup: 'Setup',
-        setupTitle: 'Setup menu'
+        setupTitle: 'Setup menu',
+        toggleMenuLabel: 'Click outside the menu to close it',
+        saveToHistoryFailed: 'Firstly, select markers',
+        historyTitle: 'Saved'
     }
 };

@@ -15,6 +15,15 @@ function changeLanguage() {
     document.getElementById('h_target').placeholder = currentLang === 'ru' ? 'например, 120' : (currentLang === 'uk' ? 'наприклад, 120' : 'e.g., 120');
 }
 
+function deleteHistoryItem(i) {
+    i.parentNode.outerHTML = ``
+}
+
+function toggleHistory() {
+    document.getElementById('history-panel').classList.toggle('active')
+    document.getElementById('toggleHistoryBtn').classList.toggle('active')
+}
+
 function updateTexts() {
     const t = translations[currentLang];
     document.getElementById('nav-setup').textContent = t.navSetup;
@@ -40,7 +49,8 @@ function updateTexts() {
     document.getElementById('device-title').textContent = t.navDevice;
     document.getElementById('calc-title').textContent = t.navCalc;
     document.getElementById('info-title').textContent = t.navInfo;
-    document.getElementById('info-content').innerHTML = t.infoText
+    document.getElementById('info-content').innerHTML = t.infoText;
+    document.getElementById('toggleMenuLabel').textContent = t.toggleMenuLabel.toUpperCase();
     if (mortarMarker) mortarMarker.bindPopup(t.mortarPopup);
     if (targetMarker) targetMarker.bindPopup(t.targetPopup);
 }
@@ -268,11 +278,47 @@ function interpolate(data, dist) {
     return null;
 }
 
+let currentGuidance = {
+    pointMortar: [0, 0],
+    pointTarget: [0, 0]
+}
+
+function loadPointsFrom(i) {
+    let save = i.parentNode;
+    currentGuidance = JSON.parse(save.getAttribute("guid"))
+    if (targetMarker) map.removeLayer(targetMarker);
+    if (mortarMarker) map.removeLayer(mortarMarker);
+
+    clearMap();
+
+    mortarMarker = L.marker({ lat: currentGuidance.pointMortar[0], lng: currentGuidance.pointMortar[1] }, { draggable: true, icon: L.divIcon({ className: 'mortar-icon', html: '<div style="background:red;width:10px;height:10px;border-radius:50%;"></div>' }) }).addTo(map);
+    targetMarker = L.marker({ lat: currentGuidance.pointTarget[0], lng: currentGuidance.pointTarget[1] }, { draggable: true, icon: L.divIcon({ className: 'target-icon', html: '<div style="background:blue;width:10px;height:10px;border-radius:50%;"></div>' }) }).addTo(map);
+    targetMarker.bindPopup(translations[currentLang].targetPopup).openPopup();
+    calculateFromMap();
+}
+
+function saveToHistory() {
+    var res = document.getElementById('result').innerText
+    if (res == '') {
+        showNotification(translations[currentLang].saveToHistoryFailed)
+        return;
+    } else {
+        document.getElementById('history-list').innerHTML += `
+         <div class="history-item" guid='${JSON.stringify(currentGuidance)}'>
+                <a href="javascript:void(0)" onclick="loadPointsFrom(this)" class="history-text">${res.split("\n")[0]}<br>${res.split("\n")[1]}<br>${res.split("\n")[2]}</a>
+                <button class="military-btn" onclick="deleteHistoryItem(this)"><i class="fa fa-close"></i></button>
+            </div>
+        `
+    }
+
+}
+
 // Обработчики событий карты
 map.on('contextmenu', (e) => {
     if (deviceMode !== 'pc') return;
     if (mortarMarker) map.removeLayer(mortarMarker);
     mortarMarker = L.marker(e.latlng, { draggable: true, icon: L.divIcon({ className: 'mortar-icon', html: '<div style="background:red;width:10px;height:10px;border-radius:50%;"></div>' }) }).addTo(map);
+    currentGuidance.pointMortar = [e.latlng.lat, e.latlng.lng];
     mortarMarker.bindPopup(translations[currentLang].mortarPopup).openPopup();
     mortarMarker.on('dragend', calculateFromMap);
     calculateFromMap();
@@ -281,6 +327,7 @@ map.on('contextmenu', (e) => {
 map.on('click', (e) => {
     if (deviceMode !== 'pc') return;
     if (targetMarker) map.removeLayer(targetMarker);
+    currentGuidance.pointTarget = [e.latlng.lat, e.latlng.lng];
     targetMarker = L.marker(e.latlng, { draggable: true, icon: L.divIcon({ className: 'target-icon', html: '<div style="background:blue;width:10px;height:10px;border-radius:50%;"></div>' }) }).addTo(map);
     targetMarker.bindPopup(translations[currentLang].targetPopup).openPopup();
     targetMarker.on('dragend', calculateFromMap);
@@ -376,6 +423,7 @@ function clearMap() {
     if (targetMarker) map.removeLayer(targetMarker);
     mortarMarker = null;
     targetMarker = null;
+    document.getElementById('result').innerText = '';
     document.getElementById('result-panel').classList.remove('active');
 }
 
@@ -383,7 +431,18 @@ function clearMap() {
 function toggleMainMenu() {
     console.log('Toggling main menu...');
     const modal = document.getElementById('main-modal');
-    modal.classList.toggle('active');
+    if (!modal.classList.contains('active')) {
+        modal.setAttribute("style", "display: flex;")
+        setTimeout(() => {
+            modal.classList.add('active');
+        }, 100)
+    } else {
+        modal.classList.remove('active');
+        setTimeout(() => {
+            modal.setAttribute("style", "display: none;")
+        }, 100)
+    }
+
     console.log('Menu state:', modal.classList.contains('active') ? 'open' : 'closed');
 }
 

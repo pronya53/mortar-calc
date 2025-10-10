@@ -2,6 +2,23 @@
     box-sizing: border-box;
 }
 
+::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    background-color: transparent;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, .3);
+    background-color: #555;
+}
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
@@ -50,9 +67,16 @@ body {
     transform: translateY(-50%) scale(0.95);
 }
 
+#toggleMenuLabel {
+    text-align: center;
+    color: gray;
+    font-weight: 600;
+    font-size: 12pt;
+    user-select: none;
+}
+
 /* Центральное модальное окно */
 #main-modal {
-    display: none;
     position: fixed;
     top: 0;
     left: 0;
@@ -61,13 +85,15 @@ body {
     background: rgba(0, 0, 0, 0.7);
     z-index: 2000;
     backdrop-filter: blur(5px);
-    animation: fadeIn 0.3s ease;
+    transition: all .3s ease;
+    opacity: 0;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
 }
 
 #main-modal.active {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    opacity: 1;
 }
 
 /* Главное окно меню */
@@ -82,7 +108,6 @@ body {
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
     display: flex;
     overflow: hidden;
-    animation: slideIn 0.4s ease;
 }
 
 /* Левая панель навигации */
@@ -579,4 +604,112 @@ body {
     text-transform: uppercase;
     letter-spacing: 1px;
     cursor: pointer;
+}
+
+#history-panel {
+    position: fixed;
+    bottom: 210px;
+    left: -370px;
+    width: 350px;
+    background: linear-gradient(135deg, #2d3748, #1a202c);
+    border: 2px solid #68d391;
+    padding: 20px 10px;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    font-size: 14px;
+    color: #e2e8f0;
+    height: 70%;
+    transition: all .3s ease;
+    backdrop-filter: blur(10px);
+    text-align: center;
+
+}
+
+#history-panel.active {
+    left: 20px;
+}
+
+body div.controls {
+    position: fixed;
+    bottom: 128px;
+    backdrop-filter: blur(10px);
+    z-index: 100;
+    left: 20px;
+    width: 130px;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+    background: linear-gradient(135deg, #2d3748, #1a202c);
+    border: none;
+    padding: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+body div.controls button {
+    width: 50px;
+    aspect-ratio: 1;
+    z-index: 100;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+    background: linear-gradient(135deg, #2d3748, #1a202c);
+    border: none;
+    transition: all .1s ease;
+    padding: 10px;
+    cursor: pointer;
+}
+
+body div.controls button:hover {
+    border: 3px solid #68d391;
+}
+
+body div.controls button.active,
+body div.controls button:active {
+    background: #68d391;
+}
+
+
+body div.controls button.active i,
+body div.controls button:active i {
+    filter: invert(0);
+}
+
+body div.controls button i {
+    transition: all .3s ease;
+    filter: invert(1);
+    transform: scale(2);
+}
+
+#history-list {
+    margin-top: 2%;
+    max-height: 97%;
+    overflow-y: auto;
+    padding: 10px;
+    text-align: start;
+}
+
+#history-title {
+    width: 100%;
+    text-align: center;
+    font-size: 16pt;
+}
+
+.history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    padding: 6px 0;
+    border-bottom: 1px solid #ccc;
+}
+
+.history-item button {
+    width: 30px;
+    aspect-ratio: 1;
+    padding: 5px;
+}
+
+a {
+    color: white
 }
