@@ -21,11 +21,7 @@
 <body>
     <div id="map"></div>
 
-    <div id="quick-actions">
-        <button class="quick-btn" onclick="clearMap()" title="Очистить карту">
-            <i class="fas fa-trash"></i>
-        </button>
-    </div>
+
 
     <button id="main-menu-btn" onclick="toggleMainMenu()" title="Открыть меню">
         <i class="fas fa-cog"></i>
@@ -140,6 +136,9 @@
         <button id="saveToHistory" onclick="saveToHistory();">
             <i class="fa fa-save"></i>
         </button>
+        <button id="trashBtn" onclick="clearMap()">
+            <i class="fa fa-trash"></i>
+        </button>
     </div>
     <div id="result-panel">
         <button class="close-btn" onclick="closeResult()">&times;</button>
@@ -148,15 +147,13 @@
     <div id="mobile-buttons">
         <button class="close-btn" id="mobile-close-btn" onclick="toggleMobileButtons()">&times;</button>
         <button class="military-btn" id="mortar-btn" onclick="activateMode('mortar')">
-            <i class="fas fa-crosshairs"></i> <span id="mortar-btn-text">Поставить миномёт</span>
+            <i class="fas fa-crosshairs"></i> <span id="mortar-btn-text"></span>
         </button>
         <button class="military-btn" id="target-btn" onclick="activateMode('target')">
-            <i class="fas fa-bullseye"></i> <span id="target-btn-text">Поставить цель</span>
+            <i class="fas fa-bullseye"></i> <span id="target-btn-text"></span>
         </button>
     </div>
-    <div id="credits">
-        Powered by PRONEDROG | За поддержкой Conflict In Europe
-    </div>
+    <div id="credits"></div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="./assets/js/translations.js"></script>

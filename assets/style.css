@@ -341,7 +341,7 @@ body {
     position: fixed;
     top: 20px;
     left: 20px;
-    z-index: 1000;
+    z-index: 2001;
     display: flex;
     gap: 10px;
 }
@@ -608,7 +608,7 @@ body {
 
 #history-panel {
     position: fixed;
-    bottom: 210px;
+    bottom: 150px;
     left: -370px;
     width: 350px;
     background: linear-gradient(135deg, #2d3748, #1a202c);
@@ -632,11 +632,11 @@ body {
 
 body div.controls {
     position: fixed;
-    bottom: 128px;
+    bottom: 50px;
     backdrop-filter: blur(10px);
     z-index: 100;
-    left: 20px;
-    width: 130px;
+    left: calc(50% - 190px/2);
+    width: 190px;
     border-radius: 12px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
     background: linear-gradient(135deg, #2d3748, #1a202c);

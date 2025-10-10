@@ -41,7 +41,6 @@ function updateTexts() {
     document.getElementById('mortar-btn-text').textContent = t.mortarBtn;
     document.getElementById('target-btn-text').textContent = t.targetBtn;
     document.getElementById('main-menu-btn').title = t.settingsTitle;
-    document.getElementById('quick-actions').querySelector('.quick-btn').title = t.clearMapTitle;
     document.getElementById('credits').textContent = t.credits;
     document.getElementById('nav-device').textContent = t.navDevice;
     document.getElementById('nav-calc').textContent = t.navCalc;
@@ -49,6 +48,7 @@ function updateTexts() {
     document.getElementById('device-title').textContent = t.navDevice;
     document.getElementById('calc-title').textContent = t.navCalc;
     document.getElementById('info-title').textContent = t.navInfo;
+    document.getElementById('history-title').textContent = t.historyTitle;
     document.getElementById('info-content').innerHTML = t.infoText;
     document.getElementById('toggleMenuLabel').textContent = t.toggleMenuLabel.toUpperCase();
     if (mortarMarker) mortarMarker.bindPopup(t.mortarPopup);
@@ -431,12 +431,15 @@ function clearMap() {
 function toggleMainMenu() {
     console.log('Toggling main menu...');
     const modal = document.getElementById('main-modal');
+    const trash = document.querySelector('.quick-btn');
     if (!modal.classList.contains('active')) {
+        trash.setAttribute('style', 'style="display: block;"')
         modal.setAttribute("style", "display: flex;")
         setTimeout(() => {
             modal.classList.add('active');
         }, 100)
     } else {
+        trash.setAttribute('style', 'style="display: none;"')
         modal.classList.remove('active');
         setTimeout(() => {
             modal.setAttribute("style", "display: none;")
