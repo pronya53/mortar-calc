@@ -53,7 +53,14 @@ const translations = {
         setupTitle: 'Меню предустановок',
         toggleMenuLabel: 'нажмите за границей меню чтобы его закрыть',
         saveToHistoryFailed: 'Сначала установите маркеры',
-        historyTitle: 'Сохраненные'
+        historyTitle: 'Сохраненные',
+        themeLabel: "Тема",
+        themes: {
+            darkgreen: 'Темная + Зелёный',
+            lightgreen: 'Светлая + Зелёный',
+            darkred: 'Темная + Красный',
+            lightred: 'Светлая + Красный'
+        }
     },
     uk: {
         title: 'Калькулятор міномета з картою Удачне',
@@ -109,7 +116,14 @@ const translations = {
         setupTitle: 'Меню передустановок',
         toggleMenuLabel: 'натисніть за кордоном меню, щоб його закрити',
         saveToHistoryFailed: 'Спочатку встановіть маркери',
-        historyTitle: 'Збережені'
+        historyTitle: 'Збережені',
+        themes: {
+            darkgreen: 'Темна + Зелений',
+            lightgreen: 'Світла + Зелений',
+            darkred: 'Темна + Червоний',
+            lightred: 'Світла + Червоний'
+        },
+        themeLabel: "Тема",
     },
     en: {
         title: 'Mortar Calculator with Udachne Map',
@@ -165,6 +179,13 @@ const translations = {
         setupTitle: 'Setup menu',
         toggleMenuLabel: 'Click outside the menu to close it',
         saveToHistoryFailed: 'Firstly, select markers',
-        historyTitle: 'Saved'
+        historyTitle: 'Saved',
+        themes: {
+            darkgreen: 'Dark + Green',
+            lightgreen: 'Light + Green',
+            darkred: 'Dark + Red',
+            lightred: 'Light + Red'
+        },
+        themeLabel: "Theme",
     }
 };

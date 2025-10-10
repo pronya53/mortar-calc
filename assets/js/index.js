@@ -46,6 +46,7 @@ function updateTexts() {
     document.getElementById('info-title').textContent = t.navInfo;
     document.getElementById('history-title').textContent = t.historyTitle;
     document.getElementById('info-content').innerHTML = t.infoText;
+    document.getElementById('theme-label').innerHTML = t.themeLabel;
     document.getElementById('toggleMenuLabel').textContent = t.toggleMenuLabel.toUpperCase();
     if (mortarMarker) mortarMarker.bindPopup(t.mortarPopup);
     if (targetMarker) targetMarker.bindPopup(t.targetPopup);
@@ -57,6 +58,15 @@ function updateLayerOptions() {
     select.options[0].text = t.layerOptions.udachne;
     select.options[1].text = t.layerOptions.sergeevka;
     select.options[2].text = t.layerOptions.satellite;
+}
+
+function updateThemeOptions() {
+    const t = translations[currentLang];
+    const select = document.getElementById('theme');
+    select.options[0].text = t.themes.darkgreen;
+    select.options[1].text = t.themes.lightgreen;
+    select.options[2].text = t.themes.darkred;
+    select.options[3].text = t.themes.lightred;
 }
 
 function updateMortarOptions() {
@@ -78,6 +88,16 @@ function updateLanguageOptions() {
 function closeResult() {
     document.getElementById('result-panel').classList.remove('active');
 }
+
+if (localStorage.getItem("mortar-calc-theme") != null) {
+    document.body.setAttribute('theme', localStorage.getItem("mortar-calc-theme"));
+}
+
+document.querySelector("select#theme").addEventListener("change", e => {
+    const selectedTheme = e.target.value;
+    document.body.setAttribute('theme', selectedTheme);
+    localStorage.setItem("mortar-calc-theme", selectedTheme)
+})
 
 // Инициализация карты с простой системой координат
 let mapWidth = 10240;
@@ -648,5 +668,6 @@ try {
 updateTexts();
 updateLayerOptions();
 updateMortarOptions();
+updateThemeOptions();
 updateLanguageOptions();
 drawGrid();

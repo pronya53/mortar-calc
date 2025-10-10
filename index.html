@@ -18,7 +18,7 @@
 
 </head>
 
-<body>
+<body theme="dark-green">
     <div id="map"></div>
     <button id="main-menu-btn" onclick="toggleMainMenu()" title="Открыть меню">
         <i class="fas fa-cog"></i>
@@ -52,7 +52,7 @@
                 <div id="setup-section" class="menu-section active">
                     <h2><i class="fas fa-gears"></i> <span id="setup-title"></span></h2>
                     <div class="military-form-group">
-                        <label class="military-label" for="setup" id="mortar-label"></label>
+                        <label class="military-label" for="mortar" id="mortar-label"></label>
                         <select id="mortar" class="military-select">
                             <option value="ua">UA (US M821 HE 81mm)</option>
                             <option value="ru">RU (О-832Д 82mm)</option>
@@ -81,6 +81,15 @@
                         <label class="checkbox-label" for="grid-toggle" id="grid-toggle-label"></label>
                         <input type="checkbox" id="grid-toggle" class="military-checkbox" checked
                             onchange="toggleGrid()">
+                    </div>
+                    <div class="military-form-group">
+                        <label class="military-label" for="theme" id="theme-label"></label>
+                        <select id="theme" class="military-select">
+                            <option value="dark-green"></option>
+                            <option value="light-green"></option>
+                            <option value="dark-red"></option>
+                            <option value="light-red"></option>
+                        </select>
                     </div>
                 </div>
 
