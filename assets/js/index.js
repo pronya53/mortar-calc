@@ -47,6 +47,7 @@ function updateTexts() {
     document.getElementById('history-title').textContent = t.historyTitle;
     document.getElementById('info-content').innerHTML = t.infoText;
     document.getElementById('theme-label').innerHTML = t.themeLabel;
+    document.getElementById('onmap-history').textContent = t.onMapHistory + t.layerOptions[currentLayer._url.split(".")[1].replace("/assets/images/", "")]
     document.getElementById('toggleMenuLabel').textContent = t.toggleMenuLabel.toUpperCase();
     if (mortarMarker) mortarMarker.bindPopup(t.mortarPopup);
     if (targetMarker) targetMarker.bindPopup(t.targetPopup);
@@ -255,6 +256,7 @@ function changeLayer() {
     }
     document.getElementById('result-panel').classList.remove('active');
     loadHistoryItems();
+    updateTexts();
     tempguid = {}
 }
 
