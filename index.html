@@ -13,25 +13,20 @@
     <title>Минометный калькулятор для Arma Reforger</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="shortcut icon" href="./assets/images/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="./assets/style.css">
 
 </head>
 
-<body>
+<body theme="dark-green">
     <div id="map"></div>
-
-    <div id="quick-actions">
-        <button class="quick-btn" onclick="clearMap()" title="Очистить карту">
-            <i class="fas fa-trash"></i>
-        </button>
-    </div>
-
     <button id="main-menu-btn" onclick="toggleMainMenu()" title="Открыть меню">
         <i class="fas fa-cog"></i>
     </button>
 
-    <div id="main-modal">
-        <button id="menu-close-btn" onclick="toggleMainMenu()">&times;</button>
+    <div id="main-modal" style="display: none;">
+        <span id="toggleMenuLabel" onclick="toggleMainMenu();">нажмите за границей меню чтобы его закрыть</span>
+        <br>
         <div id="menu-container">
             <div id="menu-sidebar">
                 <div class="menu-nav-item active" onclick="showMenuSection('setup-section')"
@@ -57,7 +52,7 @@
                 <div id="setup-section" class="menu-section active">
                     <h2><i class="fas fa-gears"></i> <span id="setup-title"></span></h2>
                     <div class="military-form-group">
-                        <label class="military-label" for="setup" id="mortar-label"></label>
+                        <label class="military-label" for="mortar" id="mortar-label"></label>
                         <select id="mortar" class="military-select">
                             <option value="ua">UA (US M821 HE 81mm)</option>
                             <option value="ru">RU (О-832Д 82mm)</option>
@@ -69,7 +64,7 @@
                         <label class="military-label" for="language" id="language-label"></label>
                         <select id="language" class="military-select" onchange="changeLanguage()">
                             <option value="ru"></option>
-                            <option value="uk"></option>
+                            <option selected value="uk"></option>
                             <option value="en"></option>
                         </select>
                     </div>
@@ -77,7 +72,7 @@
                     <div class="military-form-group">
                         <label class="military-label" for="layer" id="layer-label"></label>
                         <select id="layer" class="military-select" onchange="changeLayer()">
-                            <option value="udache"></option>
+                            <option value="udachne"></option>
                             <option value="sergeevka"></option>
                             <option value="satellite"></option>
                         </select>
@@ -86,6 +81,15 @@
                         <label class="checkbox-label" for="grid-toggle" id="grid-toggle-label"></label>
                         <input type="checkbox" id="grid-toggle" class="military-checkbox" checked
                             onchange="toggleGrid()">
+                    </div>
+                    <div class="military-form-group">
+                        <label class="military-label" for="theme" id="theme-label"></label>
+                        <select id="theme" class="military-select">
+                            <option value="dark-green"></option>
+                            <option value="light-green"></option>
+                            <option value="dark-red"></option>
+                            <option value="light-red"></option>
+                        </select>
                     </div>
                 </div>
 
@@ -121,27 +125,32 @@
                 </div>
 
                 <div id="info-section" class="menu-section">
-                    <h2><i class="fas fa-info-circle"></i> <span id="info-title">Информация</span></h2>
-                    <div id="info-content">
-                        <h3 id="info-how-to">Как использовать:</h3>
-                        <ul>
-                            <li id="info-item1">Выберите тип оружия в настройках.</li>
-                            <li id="info-item2">На ПК: Правый клик - поставить миномет (красный маркер), левый клик -
-                                поставить цель (синий маркер).</li>
-                            <li id="info-item3">На мобильном: Выберите режим (миномет или цель) и кликните на карту.
-                            </li>
-                            <li id="info-item4">Перетаскивайте маркеры для корректировки.</li>
-                            <li id="info-item5">Используйте ручной ввод расстояния и высот для расчета без карты.</li>
-                            <li id="info-item6">Смените карту в выборе слоя.</li>
-                        </ul>
-                        <p id="info-calculations">Расчеты основаны на таблицах для указанных боеприпасов.</p>
-                        <p id="info-author"><strong>Автор:</strong> PRONEDROG</p>
-                        <p id="info-mapdata"><strong>Данные карт предоставлены:</strong> Conflict In Europe</p>
-                        <p id="info-support"><strong>За підтримкой:</strong> ІГІЛ dxtitnx</p>
-                    </div>
+                    <h2><i class="fas fa-info-circle"></i> <span id="info-title"></span></h2>
+                    <div id="info-content"></div>
                 </div>
             </div>
         </div>
+    </div>
+    <div id="history-panel">
+        <span id="history-title"></span>
+        <div id="history-list">
+            <div class="history-item" guid='${JSON.stringify(m)}'>
+                <a href="javascript:void(0)" ondblclick="renameHistoryItem(this)" onclick="loadPointsFrom(this)"
+                    class="history-text">Point №${i}</a>
+                <button class="military-btn" onclick="deleteHistoryItem(this)"><i class="fa fa-close"></i></button>
+            </div>
+        </div>
+    </div>
+    <div class="controls">
+        <button id="toggleHistoryBtn" onclick="toggleHistory();">
+            <i class="fa fa-star"></i>
+        </button>
+        <button id="saveToHistory" onclick="saveToHistory();">
+            <i class="fa fa-save"></i>
+        </button>
+        <button id="trashBtn" onclick="clearMap()">
+            <i class="fa fa-trash"></i>
+        </button>
     </div>
     <div id="result-panel">
         <button class="close-btn" onclick="closeResult()">&times;</button>
@@ -150,21 +159,17 @@
     <div id="mobile-buttons">
         <button class="close-btn" id="mobile-close-btn" onclick="toggleMobileButtons()">&times;</button>
         <button class="military-btn" id="mortar-btn" onclick="activateMode('mortar')">
-            <i class="fas fa-crosshairs"></i> <span id="mortar-btn-text">Поставить миномёт</span>
+            <i class="fas fa-crosshairs"></i> <span id="mortar-btn-text"></span>
         </button>
         <button class="military-btn" id="target-btn" onclick="activateMode('target')">
-            <i class="fas fa-bullseye"></i> <span id="target-btn-text">Поставить цель</span>
+            <i class="fas fa-bullseye"></i> <span id="target-btn-text"></span>
         </button>
     </div>
-    <div id="credits">
-        Powered by PRONEDROG | За поддержкой Conflict In Europe
-    </div>
+    <div id="credits"></div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="./assets/js/translations.js"></script>
     <script src="./assets/js/index.js"></script>
-
-
 </body>
 
 </html>

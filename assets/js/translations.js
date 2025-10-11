@@ -13,7 +13,7 @@ const translations = {
         calculateManualBtn: 'Рассчитать вручную',
         layerLabel: 'Выбор карты:',
         layerOptions: {
-            udache: 'Удачное',
+            udachne: 'Удачное',
             sergeevka: 'Сергеевка',
             satellite: 'Донецкий Аэропорт'
         },
@@ -50,7 +50,17 @@ const translations = {
         manualRange: 'Ручное расстояние: ',
         credits: 'Powered by PRONEDROG | За поддержкой Conflict In Europe',
         navSetup: 'Предустановки',
-        setupTitle: 'Меню предустановок'
+        setupTitle: 'Меню предустановок',
+        toggleMenuLabel: 'нажмите за границей меню чтобы его закрыть',
+        saveToHistoryFailed: 'Сначала установите маркеры',
+        historyTitle: 'Сохраненные',
+        themeLabel: "Тема",
+        themes: {
+            darkgreen: 'Темная + Зелёный',
+            lightgreen: 'Светлая + Зелёный',
+            darkred: 'Темная + Красный',
+            lightred: 'Светлая + Красный'
+        }
     },
     uk: {
         title: 'Калькулятор міномета з картою Удачне',
@@ -66,7 +76,7 @@ const translations = {
         calculateManualBtn: 'Розрахувати вручну',
         layerLabel: 'Вибір карти:',
         layerOptions: {
-            udache: 'Удачне',
+            udachne: 'Удачне',
             sergeevka: 'Сергеївка',
             satellite: 'Донецький Аеропорт'
         },
@@ -103,7 +113,17 @@ const translations = {
         manualRange: 'Ручна відстань: ',
         credits: 'Powered by PRONEDROG | За підтримки Conflict In Europe',
         navSetup: 'Передустановка',
-        setupTitle: 'Меню передустановок'
+        setupTitle: 'Меню передустановок',
+        toggleMenuLabel: 'натисніть за кордоном меню, щоб його закрити',
+        saveToHistoryFailed: 'Спочатку встановіть маркери',
+        historyTitle: 'Збережені',
+        themes: {
+            darkgreen: 'Темна + Зелений',
+            lightgreen: 'Світла + Зелений',
+            darkred: 'Темна + Червоний',
+            lightred: 'Світла + Червоний'
+        },
+        themeLabel: "Тема",
     },
     en: {
         title: 'Mortar Calculator with Udachne Map',
@@ -119,7 +139,7 @@ const translations = {
         calculateManualBtn: 'Calculate Manually',
         layerLabel: 'Map Selection:',
         layerOptions: {
-            udache: 'Udachne',
+            udachne: 'Udachne',
             sergeevka: 'Sergeevka',
             satellite: 'Donetsk Airport'
         },
@@ -156,6 +176,16 @@ const translations = {
         manualRange: 'Manual Distance: ',
         credits: 'Powered by PRONEDROG | Supported by Conflict In Europe',
         navSetup: 'Setup',
-        setupTitle: 'Setup menu'
+        setupTitle: 'Setup menu',
+        toggleMenuLabel: 'Click outside the menu to close it',
+        saveToHistoryFailed: 'Firstly, select markers',
+        historyTitle: 'Saved',
+        themes: {
+            darkgreen: 'Dark + Green',
+            lightgreen: 'Light + Green',
+            darkred: 'Dark + Red',
+            lightred: 'Light + Red'
+        },
+        themeLabel: "Theme",
     }
 };
