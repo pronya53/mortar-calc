@@ -312,7 +312,7 @@ function saveToHistory() {
         ...tempguid,
         name: 'New points'
     })
-    console.log("saved " + currentLayer._url.split(".")[1].replace("/assets/images/", ""))
+
     localStorage.setItem("mortar-calc", JSON.stringify(guidances))
     loadHistoryItems();
 }
@@ -385,6 +385,7 @@ function loadPointsFrom(i) {
     targetMarker = L.marker({ lat: obj.pointTarget[0], lng: obj.pointTarget[1] }, { draggable: true, icon: L.divIcon({ className: 'target-icon', html: '<div style="background:blue;width:10px;height:10px;border-radius:50%;"></div>' }) }).addTo(map);
     mortarMarker = L.marker({ lat: obj.pointMortar[0], lng: obj.pointMortar[1] }, { draggable: true, icon: L.divIcon({ className: 'mortar-icon', html: '<div style="background:red;width:10px;height:10px;border-radius:50%;"></div>' }) }).addTo(map);
     targetMarker.bindPopup(translations[currentLang].targetPopup).openPopup();
+    calculateFromMap();
 }
 
 // Обработчики событий карты
