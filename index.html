@@ -132,14 +132,9 @@
         </div>
     </div>
     <div id="history-panel">
-        <span id="history-title"></span>
-        <div id="history-list">
-            <div class="history-item" guid='${JSON.stringify(m)}'>
-                <a href="javascript:void(0)" ondblclick="renameHistoryItem(this)" onclick="loadPointsFrom(this)"
-                    class="history-text">Point №${i}</a>
-                <button class="military-btn" onclick="deleteHistoryItem(this)"><i class="fa fa-close"></i></button>
-            </div>
-        </div>
+        <span id="history-title"></span><br />
+        <span id="onmap-history"></span>
+        <div id="history-list"></div>
     </div>
     <div class="controls">
         <button id="toggleHistoryBtn" onclick="toggleHistory();">

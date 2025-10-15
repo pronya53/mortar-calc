@@ -15,7 +15,8 @@ const translations = {
         layerOptions: {
             udachne: 'Удачное',
             sergeevka: 'Сергеевка',
-            satellite: 'Донецкий Аэропорт'
+            satellite: 'Донецкий Аэропорт',
+            DonAirConflict: 'Донецкий Аэропорт'
         },
         gridToggleLabel: 'Показать сетку',
         languageLabel: 'Язык:',
@@ -60,7 +61,8 @@ const translations = {
             lightgreen: 'Светлая + Зелёный',
             darkred: 'Темная + Красный',
             lightred: 'Светлая + Красный'
-        }
+        },
+        onMapHistory: "на карте: "
     },
     uk: {
         title: 'Калькулятор міномета з картою Удачне',
@@ -78,7 +80,8 @@ const translations = {
         layerOptions: {
             udachne: 'Удачне',
             sergeevka: 'Сергеївка',
-            satellite: 'Донецький Аеропорт'
+            satellite: 'Донецький Аеропорт',
+            DonAirConflict: 'Донецький Аеропорт'
         },
         gridToggleLabel: 'Показати сітку',
         languageLabel: 'Мова:',
@@ -124,6 +127,7 @@ const translations = {
             lightred: 'Світла + Червоний'
         },
         themeLabel: "Тема",
+        onMapHistory: "на мапі: "
     },
     en: {
         title: 'Mortar Calculator with Udachne Map',
@@ -141,7 +145,8 @@ const translations = {
         layerOptions: {
             udachne: 'Udachne',
             sergeevka: 'Sergeevka',
-            satellite: 'Donetsk Airport'
+            satellite: 'Donetsk Airport',
+            DonAirConflict: 'Donetsk Airport'
         },
         gridToggleLabel: 'Show Grid',
         languageLabel: 'Language:',
@@ -187,5 +192,6 @@ const translations = {
             lightred: 'Light + Red'
         },
         themeLabel: "Theme",
+        onMapHistory: "on the map: "
     }
 };
