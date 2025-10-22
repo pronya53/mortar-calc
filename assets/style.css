@@ -3,6 +3,7 @@
 }
 
 body[theme="dark-green"] {
+    --btnboxshadow: rgba(47, 133, 90, 0.4);
     --bga: #68d391;
     --bg-grad-t: linear-gradient(135deg, #2f855a, #38a169);
     --bg-grad: linear-gradient(135deg, #38a169, #48bb78);
@@ -14,6 +15,7 @@ body[theme="dark-green"] {
 }
 
 body[theme="light-green"] {
+    --btnboxshadow: rgba(47, 133, 90, 0.4);
     --bga: #68d391;
     --bg-grad-t: linear-gradient(135deg, #2f855a, #38a169);
     --bg-grad: linear-gradient(135deg, #38a169, #48bb78);
@@ -25,6 +27,7 @@ body[theme="light-green"] {
 }
 
 body[theme="dark-red"] {
+    --btnboxshadow: rgba(133, 47, 47, 0.4);
     --bga: #d36868;
     --bg-grad-t: linear-gradient(135deg, #852f2f, #a13838);
     --bg-grad: linear-gradient(135deg, #a13838, #bb4848);
@@ -36,6 +39,7 @@ body[theme="dark-red"] {
 }
 
 body[theme="light-red"] {
+    --btnboxshadow: rgba(133, 47, 47, 0.4);
     --bga: #d36868;
     --bg-grad-t: linear-gradient(135deg, #852f2f, #a13838);
     --bg-grad: linear-gradient(135deg, #a13838, #bb4848);
@@ -293,7 +297,7 @@ body {
 .military-btn:hover {
     background: var(--bg-grad);
     transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(47, 133, 90, 0.4);
+    box-shadow: 0 4px 15px var(--btnboxshadow);
 }
 
 .military-btn:active {
