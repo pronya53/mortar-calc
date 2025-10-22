@@ -83,37 +83,6 @@ body {
     z-index: 1;
 }
 
-/* Плавающая кнопка меню справа */
-#main-menu-btn {
-    position: fixed;
-    right: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: var(--bg-grad-t);
-    color: #e2e8f0;
-    border: 3px solid var(--border-fg);
-    cursor: pointer;
-    font-size: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 15px rgba(47, 133, 90, 0.4);
-    transition: all 0.3s ease;
-    z-index: 1500;
-}
-
-#main-menu-btn:hover {
-    transform: translateY(-50%) scale(1.1);
-    box-shadow: 0 6px 25px rgba(47, 133, 90, 0.6);
-    background: var(--bg-grad);
-}
-
-#main-menu-btn:active {
-    transform: translateY(-50%) scale(0.95);
-}
 
 #toggleMenuLabel {
     text-align: center;
@@ -195,7 +164,7 @@ body {
 /* Правая панель содержимого */
 #menu-content {
     flex: 1;
-    padding: 30px;
+    padding: 10px 30px;
     overflow-y: auto;
     background: var(--content);
 }
@@ -210,10 +179,10 @@ body {
 }
 
 .menu-section h2 {
+    text-align: center;
     color: var(--bga);
     margin-bottom: 20px;
     font-size: 24px;
-    border-bottom: 2px solid var(--border-fg);
     padding-bottom: 10px;
 }
 
@@ -292,6 +261,8 @@ body {
     transition: all 0.3s ease;
     width: 100%;
     margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
 }
 
 .military-btn:hover {
@@ -439,12 +410,6 @@ body {
 
 /* Адаптивные стили */
 @media (max-width: 768px) {
-    #main-menu-btn {
-        right: 10px;
-        width: 50px;
-        height: 50px;
-        font-size: 20px;
-    }
 
     #menu-container {
         width: 95%;
@@ -659,8 +624,8 @@ body div.controls {
     bottom: 50px;
     backdrop-filter: blur(10px);
     z-index: 100;
-    left: calc(50% - 190px/2);
-    width: 190px;
+    left: calc(50% - 240px/2);
+    width: 240px;
     border-radius: 12px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
     background: var(--content-grad);
