@@ -307,7 +307,7 @@ let guidances = {
 }
 
 function saveToHistory() {
-    if (tempguid == {}) {
+    if (mortarMarker == null || targetMarker == null) {
         return showNotification(translations[currentLang].saveToHistoryFailed)
     }
     guidances[currentLayer._url.split(".")[1].replace("/assets/images/", "")].push({
