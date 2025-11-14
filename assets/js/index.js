@@ -1,3 +1,4 @@
+console.log('Не забуваєм Легенд (Bars) Желенскі++'); // ПАСХАЛКА
 console.log('Starting map initialization...');
 
 let currentLang = 'uk';
@@ -9,6 +10,7 @@ function changeLanguage() {
     updateLayerOptions();
     updateMortarOptions();
     updateLanguageOptions();
+    updateProjectileSelect(); // НОВОЕ: Обновляем список снарядов
     showMenuSection(document.querySelector('.menu-nav-item.active').getAttribute('data-section'));
     document.getElementById('distance').placeholder = currentLang === 'ru' ? 'например, 1350' : (currentLang === 'uk' ? 'наприклад, 1350' : 'e.g., 1350');
     document.getElementById('h_mortar').placeholder = currentLang === 'ru' ? 'например, 170' : (currentLang === 'uk' ? 'наприклад, 170' : 'e.g., 170');
@@ -25,6 +27,7 @@ function updateTexts() {
     document.getElementById('nav-setup').textContent = t.navSetup;
     document.getElementById('setup-title').textContent = t.setupTitle;
     document.getElementById('mortar-label').textContent = t.mortarLabel;
+    document.getElementById('projectile-label').textContent = t.projectileLabel; // НОВОЕ
     document.getElementById('distance-label').textContent = t.distanceLabel;
     document.getElementById('h_mortar-label').textContent = t.h_mortarLabel;
     document.getElementById('h_target-label').textContent = t.h_targetLabel;
@@ -77,6 +80,31 @@ function updateMortarOptions() {
     select.options[1].text = t.mortarOptions.ru;
     select.options[2].text = t.mortarOptions.grad;
 }
+
+// НОВАЯ ФУНКЦИЯ для обновления и показа/скрытия списка снарядов
+function updateProjectileSelect() {
+    const mortarType = document.getElementById('mortar').value;
+    const projectileGroup = document.getElementById('projectile-form-group');
+    const projectileSelect = document.getElementById('projectile');
+    const t = translations[currentLang];
+
+    if (mortarType === 'grad') {
+        projectileGroup.style.display = 'block';
+        projectileSelect.innerHTML = ''; // Очищаем старые опции
+
+        // Добавляем новые опции из переводов
+        for (const key in t.projectileOptions) {
+            const option = document.createElement('option');
+            option.value = key;
+            option.text = t.projectileOptions[key];
+            projectileSelect.appendChild(option);
+        }
+    } else {
+        projectileGroup.style.display = 'none'; // Скрываем, если не "Град"
+        projectileSelect.innerHTML = '';
+    }
+}
+
 
 function updateLanguageOptions() {
     const t = translations[currentLang];
@@ -265,39 +293,125 @@ let mortarMarker = null;
 let targetMarker = null;
 
 // Данные минометов
+// ОБНОВЛЕНО: Добавлен 'null' для времени полета
 const uaMortarData = [
-    [400, 1531], [500, 1514], [600, 1496], [700, 1478], [800, 1460], [900, 1442],
-    [1000, 1424], [1100, 1405], [1200, 1385], [1300, 1366], [1400, 1346], [1500, 1326],
-    [1600, 1305], [1700, 1283], [1800, 1261], [1900, 1238], [2000, 1214], [2100, 1188],
-    [2200, 1162], [2300, 1134], [2400, 1104], [2500, 1070], [2600, 1034], [2700, 993],
-    [2800, 942], [2900, 870]
+    [400, 1531, null], [500, 1514, null], [600, 1496, null], [700, 1478, null], [800, 1460, null], [900, 1442, null],
+    [1000, 1424, null], [1100, 1405, null], [1200, 1385, null], [1300, 1366, null], [1400, 1346, null], [1500, 1326, null],
+    [1600, 1305, null], [1700, 1283, null], [1800, 1261, null], [1900, 1238, null], [2000, 1214, null], [2100, 1188, null],
+    [2200, 1162, null], [2300, 1134, null], [2400, 1104, null], [2500, 1070, null], [2600, 1034, null], [2700, 993, null],
+    [2800, 942, null], [2900, 870, null]
 ];
 
+// ОБНОВЛЕНО: Добавлен 'null' для времени полета
 const ruMortarData = [
-    [400, 1418], [500, 1398], [600, 1376], [700, 1355], [800, 1333], [900, 1311],
-    [1000, 1288], [1100, 1264], [1200, 1240], [1300, 1215], [1400, 1189], [1500, 1161],
-    [1600, 1133], [1700, 1102], [1800, 1069], [1900, 1034], [2000, 995], [2100, 950],
-    [2200, 896], [2300, 820]
+    [400, 1418, null], [500, 1398, null], [600, 1376, null], [700, 1355, null], [800, 1333, null], [900, 1311, null],
+    [1000, 1288, null], [1100, 1264, null], [1200, 1240, null], [1300, 1215, null], [1400, 1189, null], [1500, 1161, null],
+    [1600, 1133, null], [1700, 1102, null], [1800, 1069, null], [1900, 1034, null], [2000, 995, null], [2100, 950, null],
+    [2200, 896, null], [2300, 820, null]
 ];
 
-const gradMortarData = [
-    [3000, 140], [3200, 150], [3400, 159], [3600, 169], [3800, 179], [4000, 190],
-    [4200, 200], [4400, 211], [4600, 221], [4800, 233], [5000, 244], [5200, 256],
-    [5400, 268], [5600, 280], [5800, 293], [6000, 306], [6200, 320], [6400, 334],
-    [6600, 349], [6800, 364], [7000, 380], [7200, 398], [7400, 416], [7600, 436],
-    [7800, 458], [8000, 482], [8200, 509], [8400, 543], [8600, 587]
+// УДАЛЕНО: Старый 'gradMortarData'
+
+// НОВОЕ: Данные для 10 снарядов "Града"
+const grad_9m22_of_bt_data = [
+    [1600, 150, 7.2], [1800, 169, 8.1], [2000, 188, 9.0], [2200, 208, 9.9], [2400, 227, 10.9],
+    [2600, 248, 11.9], [2800, 268, 12.8], [3000, 290, 13.8], [3200, 312, 14.9], [3400, 335, 15.9],
+    [3600, 359, 17.0], [3800, 384, 18.1], [4000, 410, 19.3], [4200, 439, 20.6], [4400, 470, 22.0],
+    [4600, 504, 23.4], [4800, 543, 25.0], [5000, 591, 27.0], [5200, 660, 29.7]
+];
+const grad_9m28k_data = [
+    [3800, 150, 10.8], [4000, 157, 11.4], [4200, 164, 12.0], [4400, 172, 12.6], [4600, 179, 13.2],
+    [4800, 187, 13.7], [5000, 194, 14.3], [5200, 202, 14.9], [5400, 209, 15.5], [5600, 217, 16.1],
+    [5800, 225, 16.7], [6000, 233, 17.3], [6200, 241, 17.8], [6400, 249, 18.5], [6600, 257, 19.0],
+    [6800, 265, 19.7], [7000, 273, 20.3], [7200, 281, 20.9], [7400, 290, 21.6], [7600, 298, 22.2],
+    [7800, 307, 22.8], [8000, 316, 23.5], [8200, 324, 24.1], [8400, 334, 24.8], [8600, 343, 25.5],
+    [8800, 352, 26.2], [9000, 362, 26.9], [9200, 371, 27.6], [9400, 381, 28.3], [9600, 391, 29.1]
+];
+const grad_3m16_data = [
+    [3800, 147, 10.8], [4000, 154, 11.3], [4200, 161, 11.9], [4400, 169, 12.4], [4600, 176, 13.0],
+    [4800, 183, 13.6], [5000, 190, 14.1], [5200, 198, 14.7], [5400, 205, 15.3], [5600, 213, 15.9],
+    [5800, 220, 16.5], [6000, 228, 17.0], [6200, 236, 17.7], [6400, 243, 18.3], [6600, 251, 18.9],
+    [6800, 259, 19.5], [7000, 267, 20.1], [7200, 275, 20.7], [7400, 283, 21.3], [7600, 292, 21.9],
+    [7800, 300, 22.6], [8000, 309, 23.2], [8200, 317, 23.9], [8400, 326, 24.5], [8600, 335, 25.2],
+    [8800, 344, 25.8], [9000, 353, 26.5], [9200, 362, 27.2], [9400, 372, 27.9], [9600, 382, 28.6]
+];
+const grad_9m43_smoke_data = [
+    [4600, 144, 11.7], [4800, 150, 12.2], [5000, 156, 12.7], [5200, 162, 13.2], [5400, 168, 13.7],
+    [5600, 173, 14.2], [5800, 179, 14.7], [6000, 185, 15.2], [6200, 191, 15.8], [6400, 197, 16.3],
+    [6600, 203, 16.8], [6800, 209, 17.3], [7000, 215, 17.8], [7200, 221, 18.4], [7400, 227, 18.9],
+    [7600, 234, 19.4], [7800, 240, 19.9], [8000, 246, 20.5], [8200, 252, 21.0], [8400, 259, 21.6],
+    [8600, 265, 22.1], [8800, 272, 22.7], [9000, 278, 23.2], [9200, 285, 23.8], [9400, 291, 24.4],
+    [9600, 298, 24.9], [9800, 305, 25.5], [10000, 312, 26.1], [10200, 319, 26.7], [10400, 326, 27.2],
+    [10600, 333, 27.8]
+];
+const grad_9m28k_bt_data = [
+    [1400, 147, 6.7], [1600, 169, 7.6], [1800, 191, 8.6], [2000, 213, 9.6], [2200, 236, 10.7],
+    [2400, 260, 11.7], [2600, 284, 12.8], [2800, 309, 13.9], [3000, 336, 15.0], [3200, 363, 16.2],
+    [3400, 392, 17.4], [3600, 424, 18.7], [3800, 458, 20.1], [4000, 496, 21.6], [4200, 540, 23.3],
+    [4400, 596, 25.5], [4600, 689, 28.8]
+];
+const grad_9m22_of_data = [
+    [4600, 144, 11.7], [4800, 150, 12.2], [5000, 156, 12.7], [5200, 162, 13.2], [5400, 168, 13.7],
+    [5600, 173, 14.2], [5800, 179, 14.7], [6000, 185, 15.2], [6200, 191, 15.8], [6400, 197, 16.3],
+    [6600, 203, 16.8], [6800, 209, 17.3], [7000, 215, 17.8], [7200, 221, 18.4], [7400, 227, 18.9],
+    [7600, 234, 19.4], [7800, 240, 19.9], [8000, 246, 20.5], [8200, 252, 21.0], [8400, 259, 21.6],
+    [8600, 265, 22.1], [8800, 272, 22.7], [9000, 278, 23.2], [9200, 285, 23.8], [9400, 291, 24.4],
+    [9600, 298, 24.9], [9800, 305, 25.5], [10000, 312, 26.1], [10200, 319, 26.7], [10400, 326, 27.2],
+    [10600, 333, 27.8]
+];
+const grad_3m16_mt_data = [
+    [2000, 142, 7.8], [2200, 156, 8.5], [2400, 170, 9.3], [2600, 184, 10.1], [2800, 198, 10.9],
+    [3000, 212, 11.7], [3200, 227, 12.5], [3400, 242, 13.3], [3600, 257, 14.2], [3800, 272, 15.0],
+    [4000, 288, 15.9], [4200, 304, 16.7], [4400, 320, 17.6], [4600, 337, 18.5], [4800, 354, 19.5],
+    [5000, 372, 20.5], [5200, 391, 21.4], [5400, 411, 22.4], [5600, 431, 23.5], [5800, 453, 24.7],
+    [6000, 476, 25.8], [6200, 502, 27.1], [6400, 529, 28.4], [6600, 561, 30.0], [6800, 598, 31.7],
+    [7000, 647, 33.9]
+];
+const grad_9m22_of_mt_data = [
+    [2400, 151, 8.7], [2600, 163, 9.4], [2800, 175, 10.2], [3000, 187, 10.9], [3200, 200, 11.7],
+    [3400, 212, 12.4], [3600, 225, 13.2], [3800, 238, 14.0], [4000, 251, 14.7], [4200, 264, 15.5],
+    [4400, 278, 16.3], [4600, 291, 17.1], [4800, 305, 17.9], [5000, 320, 18.7], [5200, 334, 19.6],
+    [5400, 349, 20.5], [5600, 365, 21.3], [5800, 381, 22.3], [6000, 398, 23.2], [6200, 415, 24.2],
+    [6400, 433, 25.2], [6600, 452, 26.2], [6800, 472, 27.3], [7000, 493, 28.4], [7200, 517, 29.7],
+    [7400, 542, 31.0], [7600, 571, 32.5], [7800, 605, 34.2], [8000, 649, 36.3]
+];
+const grad_3m16_bt_data = [
+    [1400, 147, 6.6], [1600, 168, 7.6], [1800, 190, 8.6], [2000, 213, 9.6], [2200, 236, 10.6],
+    [2400, 259, 11.7], [2600, 283, 12.7], [2800, 308, 13.8], [3000, 334, 15.0], [3200, 362, 16.2],
+    [3400, 391, 17.4], [3600, 422, 18.6], [3800, 456, 20.1], [4000, 494, 21.6], [4200, 537, 23.3],
+    [4400, 592, 25.4], [4600, 679, 28.5]
+];
+const grad_9m28k_mt_data = [
+    [2000, 144, 7.8], [2200, 158, 8.6], [2400, 172, 9.3], [2600, 186, 10.2], [2800, 200, 10.9],
+    [3000, 215, 11.7], [3200, 229, 12.6], [3400, 244, 13.4], [3600, 260, 14.3], [3800, 275, 15.1],
+    [4000, 291, 15.9], [4200, 307, 16.8], [4400, 324, 17.7], [4600, 341, 18.7], [4800, 359, 19.6],
+    [5000, 378, 20.6], [5200, 397, 21.6], [5400, 417, 22.6], [5600, 438, 23.8], [5800, 460, 24.8],
+    [6000, 484, 26.1], [6200, 511, 27.4], [6400, 540, 28.8], [6600, 573, 30.4], [6800, 614, 32.3],
+    [7000, 674, 34.9]
 ];
 
+// ОБНОВЛЕНО: Функция теперь возвращает объект { elevation, time }
 function interpolate(data, dist) {
-    if (dist < data[0][0] || dist > data[data.length - 1][0]) return null;
+    if (dist < data[0][0] || dist > data[data.length - 1][0]) {
+        return { elevation: null, time: null };
+    }
     for (let i = 0; i < data.length - 1; i++) {
         if (dist >= data[i][0] && dist <= data[i + 1][0]) {
             const ratio = (dist - data[i][0]) / (data[i + 1][0] - data[i][0]);
+            
+            // Расчет угла
             const elev = data[i][1] + (data[i + 1][1] - data[i][1]) * ratio;
-            return elev;
+            
+            // Расчет времени (с проверкой, есть ли оно)
+            let time = null;
+            if (data[i].length > 2 && data[i][2] !== null && data[i + 1][2] !== null) {
+                time = data[i][2] + (data[i + 1][2] - data[i][2]) * ratio;
+            }
+            
+            return { elevation: elev, time: time };
         }
     }
-    return null;
+    return { elevation: null, time: null };
 }
 
 let guidances = {
@@ -411,86 +525,159 @@ map.on('click', (e) => {
     calculateFromMap();
 });
 
+// ОБНОВЛЕНО: Полностью переписана логика выбора данных и отображения результата
 function calculateFromMap() {
     if (!mortarMarker || !targetMarker) return;
+    
+    const t = translations[currentLang];
     const mortarPos = mortarMarker.getLatLng();
     const targetPos = targetMarker.getLatLng();
-    let dist, dx, dy;
-    const layer = document.getElementById('layer').value;
-    dx = targetPos.lng - mortarPos.lng;
-    dy = targetPos.lat - mortarPos.lat;
-    dist = Math.sqrt(dx * dx + dy * dy);
+    
+    let dx = targetPos.lng - mortarPos.lng;
+    let dy = targetPos.lat - mortarPos.lat;
+    let dist = Math.sqrt(dx * dx + dy * dy);
+    
     const azRad = Math.atan2(dx, dy);
     let azDeg = (azRad * 180 / Math.PI + 360) % 360;
-    const azUaMils = (azDeg / 360) * 6400;
-    const azRuMils = (azDeg / 360) * 6000;
+    
     const mortarType = document.getElementById('mortar').value;
-    let data, azMils;
+    let data, azMils, azUaMils, azRuMils;
+
+    // Логика выбора данных
     if (mortarType === 'ua') {
         data = uaMortarData;
+        azUaMils = (azDeg / 360) * 6400;
         azMils = azUaMils.toFixed(0);
     } else if (mortarType === 'ru') {
         data = ruMortarData;
+        azRuMils = (azDeg / 360) * 6000;
+        azMils = azRuMils.toFixed(0);
+    } else if (mortarType === 'grad') {
+        const projectileType = document.getElementById('projectile').value;
+        switch (projectileType) {
+            case '9m22_of': data = grad_9m22_of_data; break;
+            case '9m22_of_bt': data = grad_9m22_of_bt_data; break;
+            case '9m22_of_mt': data = grad_9m22_of_mt_data; break;
+            case '9m28k': data = grad_9m28k_data; break;
+            case '9m28k_bt': data = grad_9m28k_bt_data; break;
+            case '9m28k_mt': data = grad_9m28k_mt_data; break;
+            case '3m16': data = grad_3m16_data; break;
+            case '3m16_bt': data = grad_3m16_bt_data; break;
+            case '3m16_mt': data = grad_3m16_mt_data; break;
+            case '9m43_smoke': data = grad_9m43_smoke_data; break;
+            default: data = grad_9m22_of_data; // По умолчанию
+        }
+        azRuMils = (azDeg / 360) * 6000;
         azMils = azRuMils.toFixed(0);
     } else {
-        data = gradMortarData;
-        azMils = azRuMils.toFixed(0);
+        data = uaMortarData; // По умолчанию
+        azUaMils = (azDeg / 360) * 6400;
+        azMils = azUaMils.toFixed(0);
     }
+
     // Учет высоты
     const h_mortar = parseFloat(document.getElementById('h_mortar').value) || 0;
     const h_target = parseFloat(document.getElementById('h_target').value) || 0;
     const deltaH = h_target - h_mortar;
     const correction = Math.abs(deltaH) < 25 ? 0 : deltaH / 2;
     const adjustedDist = dist + (deltaH >= 0 ? correction : -correction);
-    let elev = interpolate(data, adjustedDist);
-    let elevText = elev !== null ? `${elev.toFixed(1)} mils` : translations[currentLang].outOfRange;
-    const t = translations[currentLang];
+
+    // Получаем угол и время
+    const calcResult = interpolate(data, adjustedDist);
+    const elev = calcResult.elevation;
+    const time = calcResult.time;
+
+    let elevText = elev !== null ? `${elev.toFixed(1)} mils` : t.outOfRange;
+    let timeText = '';
+    if (time !== null && time > 0) {
+        timeText = `<br>${t.flightTimeText}${time.toFixed(1)} ${t.flightTimeSeconds}`;
+    }
+
+    // Формирование результата
     let resultText = `
-                ${t.rangeText}${dist.toFixed(0)} м<br>
-                ${t.azimuthText}${azDeg.toFixed(1)}° (${azMils} mils)<br>
-                ${t.elevationText}${elevText}
-            `;
+        ${t.rangeText}${dist.toFixed(0)} м<br>
+        ${t.azimuthText}${azDeg.toFixed(1)}° (${azMils} mils)<br>
+        ${t.elevationText}${elevText}
+        ${timeText} 
+    `;
+
     if (Math.abs(deltaH) >= 25) {
         resultText = `
-                    ${t.rangeText}${dist.toFixed(0)} м<br>
-                    ${t.adjustedRangeText}${adjustedDist.toFixed(0)} м<br>
-                    ${t.azimuthText}${azDeg.toFixed(1)}° (${azMils} mils)<br>
-                    ${t.elevationText}${elevText}
-                `;
+            ${t.rangeText}${dist.toFixed(0)} м<br>
+            ${t.adjustedRangeText}${adjustedDist.toFixed(0)} м<br>
+            ${t.azimuthText}${azDeg.toFixed(1)}° (${azMils} mils)<br>
+            ${t.elevationText}${elevText}
+            ${timeText}
+        `;
     }
+    
     document.getElementById('result').innerHTML = resultText;
     document.getElementById('result-panel').classList.add('active');
 }
 
+// ОБНОВЛЕНО: Логика выбора данных и отображения результата
 function calculateManual() {
     const dist = parseFloat(document.getElementById('distance').value);
     if (isNaN(dist)) return;
+
+    const t = translations[currentLang];
     const mortarType = document.getElementById('mortar').value;
     let data;
+
+    // Логика выбора данных
     if (mortarType === 'ua') {
         data = uaMortarData;
     } else if (mortarType === 'ru') {
         data = ruMortarData;
+    } else if (mortarType === 'grad') {
+        const projectileType = document.getElementById('projectile').value;
+        switch (projectileType) {
+            case '9m22_of': data = grad_9m22_of_data; break;
+            case '9m22_of_bt': data = grad_9m22_of_bt_data; break;
+            case '9m22_of_mt': data = grad_9m22_of_mt_data; break;
+            case '9m28k': data = grad_9m28k_data; break;
+            case '9m28k_bt': data = grad_9m28k_bt_data; break;
+            case '9m28k_mt': data = grad_9m28k_mt_data; break;
+            case '3m16': data = grad_3m16_data; break;
+            case '3m16_bt': data = grad_3m16_bt_data; break;
+            case '3m16_mt': data = grad_3m16_mt_data; break;
+            case '9m43_smoke': data = grad_9m43_smoke_data; break;
+            default: data = grad_9m22_of_data;
+        }
     } else {
-        data = gradMortarData;
+        data = uaMortarData;
     }
+
     // Учет высоты
     const h_mortar = parseFloat(document.getElementById('h_mortar').value) || 0;
     const h_target = parseFloat(document.getElementById('h_target').value) || 0;
     const deltaH = h_target - h_mortar;
     const correction = Math.abs(deltaH) < 25 ? 0 : deltaH / 2;
     const adjustedDist = dist + (deltaH >= 0 ? correction : -correction);
-    let elev = interpolate(data, adjustedDist);
-    let elevText = elev !== null ? `${elev.toFixed(1)} mils` : translations[currentLang].outOfRange;
-    const t = translations[currentLang];
-    let resultText = `${t.manualRange}${dist} м | ${t.elevationText}${elevText}`;
+
+    // Получаем угол и время
+    const calcResult = interpolate(data, adjustedDist);
+    const elev = calcResult.elevation;
+    const time = calcResult.time;
+
+    let elevText = elev !== null ? `${elev.toFixed(1)} mils` : t.outOfRange;
+    let timeText = '';
+    if (time !== null && time > 0) {
+        timeText = `<br>${t.flightTimeText}${time.toFixed(1)} ${t.flightTimeSeconds}`;
+    }
+
+    // Формирование результата
+    let resultText = `${t.manualRange}${dist} м | ${t.elevationText}${elevText} ${timeText}`;
+    
     if (Math.abs(deltaH) >= 25) {
         resultText = `
-                    ${t.manualRange}${dist} м<br>
-                    ${t.adjustedRangeText}${adjustedDist.toFixed(0)} м<br>
-                    ${t.elevationText}${elevText}
-                `;
+            ${t.manualRange}${dist} м<br>
+            ${t.adjustedRangeText}${adjustedDist.toFixed(0)} м<br>
+            ${t.elevationText}${elevText}
+            ${timeText}
+        `;
     }
+
     document.getElementById('result').innerHTML = resultText;
     document.getElementById('result-panel').classList.add('active');
 }
@@ -668,9 +855,14 @@ try {
 } catch (error) {
     console.error('Error fitting map bounds:', error);
 }
+
+// НОВОЕ: Добавляем слушатель событий для выбора оружия
+document.getElementById('mortar').addEventListener('change', updateProjectileSelect);
+
 updateTexts();
 updateLayerOptions();
 updateMortarOptions();
 updateThemeOptions();
 updateLanguageOptions();
+updateProjectileSelect(); // НОВОЕ: Вызываем при первой загрузке
 drawGrid();
