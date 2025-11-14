@@ -1,4 +1,4 @@
-console.log('Не забуваєм Легенд (Bars) Желенскі++'); // ПАСХАЛКА
+console.log('Не забуваєм Легенд (Bars) Желенскі++');
 console.log('Starting map initialization...');
 
 let currentLang = 'uk';
@@ -10,11 +10,12 @@ function changeLanguage() {
     updateLayerOptions();
     updateMortarOptions();
     updateLanguageOptions();
-    updateProjectileSelect(); // НОВОЕ: Обновляем список снарядов
+    updateProjectileSelect();
     showMenuSection(document.querySelector('.menu-nav-item.active').getAttribute('data-section'));
     document.getElementById('distance').placeholder = currentLang === 'ru' ? 'например, 1350' : (currentLang === 'uk' ? 'наприклад, 1350' : 'e.g., 1350');
     document.getElementById('h_mortar').placeholder = currentLang === 'ru' ? 'например, 170' : (currentLang === 'uk' ? 'наприклад, 170' : 'e.g., 170');
     document.getElementById('h_target').placeholder = currentLang === 'ru' ? 'например, 120' : (currentLang === 'uk' ? 'наприклад, 120' : 'e.g., 120');
+    document.getElementById('distance-correction').placeholder = currentLang === 'ru' ? 'например, -400' : (currentLang === 'uk' ? 'наприклад, -400' : 'e.g., -400');
 }
 
 function toggleHistory() {
@@ -27,7 +28,8 @@ function updateTexts() {
     document.getElementById('nav-setup').textContent = t.navSetup;
     document.getElementById('setup-title').textContent = t.setupTitle;
     document.getElementById('mortar-label').textContent = t.mortarLabel;
-    document.getElementById('projectile-label').textContent = t.projectileLabel; // НОВОЕ
+    document.getElementById('projectile-label').textContent = t.projectileLabel;
+    document.getElementById('correction-label').textContent = t.correctionLabel; // НОВОЕ
     document.getElementById('distance-label').textContent = t.distanceLabel;
     document.getElementById('h_mortar-label').textContent = t.h_mortarLabel;
     document.getElementById('h_target-label').textContent = t.h_targetLabel;
@@ -81,7 +83,6 @@ function updateMortarOptions() {
     select.options[2].text = t.mortarOptions.grad;
 }
 
-// НОВАЯ ФУНКЦИЯ для обновления и показа/скрытия списка снарядов
 function updateProjectileSelect() {
     const mortarType = document.getElementById('mortar').value;
     const projectileGroup = document.getElementById('projectile-form-group');
@@ -90,9 +91,8 @@ function updateProjectileSelect() {
 
     if (mortarType === 'grad') {
         projectileGroup.style.display = 'block';
-        projectileSelect.innerHTML = ''; // Очищаем старые опции
+        projectileSelect.innerHTML = ''; 
 
-        // Добавляем новые опции из переводов
         for (const key in t.projectileOptions) {
             const option = document.createElement('option');
             option.value = key;
@@ -100,7 +100,7 @@ function updateProjectileSelect() {
             projectileSelect.appendChild(option);
         }
     } else {
-        projectileGroup.style.display = 'none'; // Скрываем, если не "Град"
+        projectileGroup.style.display = 'none'; 
         projectileSelect.innerHTML = '';
     }
 }
@@ -128,7 +128,6 @@ document.querySelector("select#theme").addEventListener("change", e => {
     localStorage.setItem("mortar-calc-theme", selectedTheme)
 })
 
-// Инициализация карты с простой системой координат
 let mapWidth = 10240;
 let mapHeight = 5120;
 let map;
@@ -147,7 +146,6 @@ try {
     console.error('Error initializing map:', error);
 }
 
-// Наложение карты Удачное
 const udachneBounds = [[0, 0], [5120, 10240]];
 let udachneLayer;
 try {
@@ -157,11 +155,9 @@ try {
     console.error('Error loading udachne layer:', error);
 }
 
-// Размеры для остальных карт
 const donairBounds = [[0, 0], [4352, 4352]];
 const sergeevkaBounds = [[0, 0], [10240, 10240]];
 
-// Карты
 let sergeevkaLayer, donAirLayer;
 try {
     sergeevkaLayer = L.imageOverlay('./assets/images/sergeevka.png', sergeevkaBounds);
@@ -176,7 +172,6 @@ let gridLayer = L.layerGroup().addTo(map);
 let minorGridLayer = L.layerGroup();
 let isGridEnabled = true;
 
-// Функция для управления отображением сетки
 function toggleGrid() {
     isGridEnabled = document.getElementById('grid-toggle').checked;
     if (isGridEnabled) {
@@ -189,22 +184,19 @@ function toggleGrid() {
     console.log('Grid toggled:', isGridEnabled);
 }
 
-// Функция для отрисовки сетки
 function drawGrid() {
     gridLayer.clearLayers();
     minorGridLayer.clearLayers();
 
     if (!isGridEnabled) return;
 
-    const majorStep = 1000; // 1 км
-    const minorStep = 100;  // 100 м
+    const majorStep = 1000;
+    const minorStep = 100;
     const zoom = map.getZoom();
 
-    // Определяем размеры карты
     let width = mapWidth;
     let height = mapHeight;
 
-    // Основная сетка (1 км)
     for (let x = 0; x <= width; x += majorStep) {
         gridLayer.addLayer(L.polyline([[0, x], [height, x]], { className: 'grid-line' }));
     }
@@ -212,7 +204,6 @@ function drawGrid() {
         gridLayer.addLayer(L.polyline([[y, 0], [y, width]], { className: 'grid-line' }));
     }
 
-    // Мелкая сетка (100 м), отображается при zoom >= 0
     if (zoom >= 0) {
         minorGridLayer.addTo(map);
         for (let x = 0; x <= width; x += minorStep) {
@@ -230,7 +221,6 @@ function drawGrid() {
     }
 }
 
-// Обновление сетки при зуме
 map.on('zoomend', drawGrid);
 
 let tempguid = {}
@@ -273,7 +263,6 @@ function changeLayer() {
     }
     drawGrid();
 
-    // Очищаем маркеры при смене карты
     if (mortarMarker) {
         map.removeLayer(mortarMarker);
         mortarMarker = null;
@@ -288,12 +277,9 @@ function changeLayer() {
     tempguid = {}
 }
 
-// Маркеры
 let mortarMarker = null;
 let targetMarker = null;
 
-// Данные минометов
-// ОБНОВЛЕНО: Добавлен 'null' для времени полета
 const uaMortarData = [
     [400, 1531, null], [500, 1514, null], [600, 1496, null], [700, 1478, null], [800, 1460, null], [900, 1442, null],
     [1000, 1424, null], [1100, 1405, null], [1200, 1385, null], [1300, 1366, null], [1400, 1346, null], [1500, 1326, null],
@@ -302,7 +288,6 @@ const uaMortarData = [
     [2800, 942, null], [2900, 870, null]
 ];
 
-// ОБНОВЛЕНО: Добавлен 'null' для времени полета
 const ruMortarData = [
     [400, 1418, null], [500, 1398, null], [600, 1376, null], [700, 1355, null], [800, 1333, null], [900, 1311, null],
     [1000, 1288, null], [1100, 1264, null], [1200, 1240, null], [1300, 1215, null], [1400, 1189, null], [1500, 1161, null],
@@ -310,9 +295,6 @@ const ruMortarData = [
     [2200, 896, null], [2300, 820, null]
 ];
 
-// УДАЛЕНО: Старый 'gradMortarData'
-
-// НОВОЕ: Данные для 10 снарядов "Града"
 const grad_9m22_of_bt_data = [
     [1600, 150, 7.2], [1800, 169, 8.1], [2000, 188, 9.0], [2200, 208, 9.9], [2400, 227, 10.9],
     [2600, 248, 11.9], [2800, 268, 12.8], [3000, 290, 13.8], [3200, 312, 14.9], [3400, 335, 15.9],
@@ -390,7 +372,6 @@ const grad_9m28k_mt_data = [
     [7000, 674, 34.9]
 ];
 
-// ОБНОВЛЕНО: Функция теперь возвращает объект { elevation, time }
 function interpolate(data, dist) {
     if (dist < data[0][0] || dist > data[data.length - 1][0]) {
         return { elevation: null, time: null };
@@ -399,10 +380,8 @@ function interpolate(data, dist) {
         if (dist >= data[i][0] && dist <= data[i + 1][0]) {
             const ratio = (dist - data[i][0]) / (data[i + 1][0] - data[i][0]);
             
-            // Расчет угла
             const elev = data[i][1] + (data[i + 1][1] - data[i][1]) * ratio;
             
-            // Расчет времени (с проверкой, есть ли оно)
             let time = null;
             if (data[i].length > 2 && data[i][2] !== null && data[i + 1][2] !== null) {
                 time = data[i][2] + (data[i + 1][2] - data[i][2]) * ratio;
@@ -504,7 +483,6 @@ function loadPointsFrom(i) {
     calculateFromMap();
 }
 
-// Обработчики событий карты
 map.on('contextmenu', (e) => {
     if (deviceMode !== 'pc') return;
     if (mortarMarker) map.removeLayer(mortarMarker);
@@ -565,51 +543,57 @@ function calculateFromMap() {
             case '3m16_bt': data = grad_3m16_bt_data; break;
             case '3m16_mt': data = grad_3m16_mt_data; break;
             case '9m43_smoke': data = grad_9m43_smoke_data; break;
-            default: data = grad_9m22_of_data; // По умолчанию
+            default: data = grad_9m22_of_data;
         }
         azRuMils = (azDeg / 360) * 6000;
         azMils = azRuMils.toFixed(0);
     } else {
-        data = uaMortarData; // По умолчанию
+        data = uaMortarData;
         azUaMils = (azDeg / 360) * 6400;
         azMils = azUaMils.toFixed(0);
     }
 
-    // Учет высоты
+    // *** НОВАЯ ЛОГИКА РАСЧЕТА ДИСТАНЦИИ ***
+
+    // 1. Получаем все значения
     const h_mortar = parseFloat(document.getElementById('h_mortar').value) || 0;
     const h_target = parseFloat(document.getElementById('h_target').value) || 0;
-    const deltaH = h_target - h_mortar;
-    const correction = Math.abs(deltaH) < 25 ? 0 : deltaH / 2;
-    const adjustedDist = dist + (deltaH >= 0 ? correction : -correction);
+    const correction = parseFloat(document.getElementById('distance-correction').value) || 0;
 
-    // Получаем угол и время
-    const calcResult = interpolate(data, adjustedDist);
+    // 2. Считаем поправку на высоту
+    const deltaH = h_target - h_mortar;
+    const heightCorrection = Math.abs(deltaH) < 25 ? 0 : deltaH / 2;
+    const adjustedDist = dist + (deltaH >= 0 ? heightCorrection : -heightCorrection);
+
+    // 3. Применяем ручную коррекцию (НОВОЕ)
+    const correctedDist = adjustedDist + correction;
+
+    // 4. Ищем угол и время по ФИНАЛЬНОЙ дистанции
+    const calcResult = interpolate(data, correctedDist);
     const elev = calcResult.elevation;
     const time = calcResult.time;
 
-    let elevText = elev !== null ? `${elev.toFixed(1)} mils` : t.outOfRange;
-    let timeText = '';
-    if (time !== null && time > 0) {
-        timeText = `<br>${t.flightTimeText}${time.toFixed(1)} ${t.flightTimeSeconds}`;
-    }
+    // *** НОВАЯ ЛОГИКА ОТОБРАЖЕНИЯ РЕЗУЛЬТАТА ***
 
-    // Формирование результата
+    let elevText = elev !== null ? `${elev.toFixed(1)} mils` : t.outOfRange;
+    let timeText = (time !== null && time > 0) ? `<br>${t.flightTimeText}${time.toFixed(1)} ${t.flightTimeSeconds}` : '';
+    
+    // Всегда показываем "сырую" дистанцию по карте
     let resultText = `
         ${t.rangeText}${dist.toFixed(0)} м<br>
-        ${t.azimuthText}${azDeg.toFixed(1)}° (${azMils} mils)<br>
-        ${t.elevationText}${elevText}
-        ${timeText} 
     `;
 
-    if (Math.abs(deltaH) >= 25) {
-        resultText = `
-            ${t.rangeText}${dist.toFixed(0)} м<br>
-            ${t.adjustedRangeText}${adjustedDist.toFixed(0)} м<br>
-            ${t.azimuthText}${azDeg.toFixed(1)}° (${azMils} mils)<br>
-            ${t.elevationText}${elevText}
-            ${timeText}
-        `;
+    // Показываем "Расчетную" дистанцию, ТОЛЬКО если она отличается от "сырой"
+    if (correctedDist.toFixed(0) !== dist.toFixed(0)) {
+        resultText += `${t.calcDistanceText}${correctedDist.toFixed(0)} м<br>`;
     }
+
+    // Добавляем азимут и угол
+    resultText += `
+        ${t.azimuthText}${azDeg.toFixed(1)}° (${azMils} mils)<br>
+        ${t.elevationText}${elevText}
+        ${timeText}
+    `;
     
     document.getElementById('result').innerHTML = resultText;
     document.getElementById('result-panel').classList.add('active');
@@ -648,35 +632,46 @@ function calculateManual() {
         data = uaMortarData;
     }
 
-    // Учет высоты
+    // *** НОВАЯ ЛОГИКА РАСЧЕТА ДИСТАНЦИИ ***
+
+    // 1. Получаем все значения
     const h_mortar = parseFloat(document.getElementById('h_mortar').value) || 0;
     const h_target = parseFloat(document.getElementById('h_target').value) || 0;
-    const deltaH = h_target - h_mortar;
-    const correction = Math.abs(deltaH) < 25 ? 0 : deltaH / 2;
-    const adjustedDist = dist + (deltaH >= 0 ? correction : -correction);
+    const correction = parseFloat(document.getElementById('distance-correction').value) || 0;
 
-    // Получаем угол и время
-    const calcResult = interpolate(data, adjustedDist);
+    // 2. Считаем поправку на высоту
+    const deltaH = h_target - h_mortar;
+    const heightCorrection = Math.abs(deltaH) < 25 ? 0 : deltaH / 2;
+    const adjustedDist = dist + (deltaH >= 0 ? heightCorrection : -heightCorrection);
+
+    // 3. Применяем ручную коррекцию (НОВОЕ)
+    const correctedDist = adjustedDist + correction;
+
+    // 4. Ищем угол и время по ФИНАЛЬНОЙ дистанции
+    const calcResult = interpolate(data, correctedDist);
     const elev = calcResult.elevation;
     const time = calcResult.time;
 
+    // *** НОВАЯ ЛОГИКА ОТОБРАЖЕНИЯ РЕЗУЛЬТАТА ***
+
     let elevText = elev !== null ? `${elev.toFixed(1)} mils` : t.outOfRange;
-    let timeText = '';
-    if (time !== null && time > 0) {
-        timeText = `<br>${t.flightTimeText}${time.toFixed(1)} ${t.flightTimeSeconds}`;
+    let timeText = (time !== null && time > 0) ? `<br>${t.flightTimeText}${time.toFixed(1)} ${t.flightTimeSeconds}` : '';
+
+    // Всегда показываем "сырую" дистанцию
+    let resultText = `
+        ${t.manualRange}${dist.toFixed(0)} м<br>
+    `;
+    
+    // Показываем "Расчетную" дистанцию, ТОЛЬКО если она отличается от "сырой"
+    if (correctedDist.toFixed(0) !== dist.toFixed(0)) {
+        resultText += `${t.calcDistanceText}${correctedDist.toFixed(0)} м<br>`;
     }
 
-    // Формирование результата
-    let resultText = `${t.manualRange}${dist} м | ${t.elevationText}${elevText} ${timeText}`;
-    
-    if (Math.abs(deltaH) >= 25) {
-        resultText = `
-            ${t.manualRange}${dist} м<br>
-            ${t.adjustedRangeText}${adjustedDist.toFixed(0)} м<br>
-            ${t.elevationText}${elevText}
-            ${timeText}
-        `;
-    }
+    // Добавляем угол
+    resultText += `
+        ${t.elevationText}${elevText}
+        ${timeText}
+    `;
 
     document.getElementById('result').innerHTML = resultText;
     document.getElementById('result-panel').classList.add('active');
@@ -770,7 +765,7 @@ function setDevice(mode) {
         });
 
         // Показываем уведомление
-        showNotification(translations[currentLang].deviceBtnTitle + ': ' + translations[currentLang].pcBtn);
+        showNotification(translations[currentLang].deviceBtnTitle + ': ' : ' + translations[currentLang].pcBtn);
     }
 }
 
@@ -856,7 +851,6 @@ try {
     console.error('Error fitting map bounds:', error);
 }
 
-// НОВОЕ: Добавляем слушатель событий для выбора оружия
 document.getElementById('mortar').addEventListener('change', updateProjectileSelect);
 
 updateTexts();
@@ -864,5 +858,5 @@ updateLayerOptions();
 updateMortarOptions();
 updateThemeOptions();
 updateLanguageOptions();
-updateProjectileSelect(); // НОВОЕ: Вызываем при первой загрузке
+updateProjectileSelect(); 
 drawGrid();
