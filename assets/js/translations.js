@@ -7,6 +7,19 @@ const translations = {
             ru: 'RU (О-832Д 82mm)',
             grad: 'BM-21 Grad (122mm)'
         },
+        projectileLabel: 'Тип снаряда:', // НОВОЕ
+        projectileOptions: { // НОВОЕ
+            '9m22_of': '9М22 ОФ',
+            '9m22_of_bt': '9М22 ОФ (Б. торм.)',
+            '9m22_of_mt': '9М22 ОФ (М. торм.)',
+            '9m28k': '9М28К (Кассетн.)',
+            '9m28k_bt': '9М28К (Кассетн. Б. торм.)',
+            '9m28k_mt': '9М28К (Кассетн. М. торм.)',
+            '3m16': 'ЗМ16 (Кассетн.)',
+            '3m16_bt': 'ЗМ16 (Кассетн. Б. торм.)',
+            '3m16_mt': 'ЗМ16 (Кассетн. М. торм.)',
+            '9m43_smoke': '9М43 (Дымовой)'
+        },
         distanceLabel: 'Ручное расстояние (м, опционально):',
         h_mortarLabel: 'Высота миномета (м):',
         h_targetLabel: 'Высота цели (м):',
@@ -47,6 +60,8 @@ const translations = {
         adjustedRangeText: 'Скорректированное расстояние: ',
         azimuthText: 'Азимут: ',
         elevationText: 'Угол возвышения: ',
+        flightTimeText: 'Время полета: ', // НОВОЕ
+        flightTimeSeconds: 'сек.', // НОВОЕ
         outOfRange: 'Вне диапазона!',
         manualRange: 'Ручное расстояние: ',
         credits: 'Powered by PRONEDROG | За поддержкой Conflict In Europe',
@@ -71,6 +86,19 @@ const translations = {
             ua: 'UA (US M821 HE 81mm)',
             ru: 'RU (О-832Д 82mm)',
             grad: 'BM-21 Grad (122mm)'
+        },
+        projectileLabel: 'Тип снаряду:', // НОВЕ
+        projectileOptions: { // НОВЕ
+            '9m22_of': '9М22 ОФ',
+            '9m22_of_bt': '9М22 ОФ (В. гальмо.)',
+            '9m22_of_mt': '9М22 ОФ (М. гальмо.)',
+            '9m28k': '9М28К (Касетн.)',
+            '9m28k_bt': '9М28К (Касетн. В. гальмо.)',
+            '9m28k_mt': '9М28К (Касетн. М. гальмо.)',
+            '3m16': 'ЗМ16 (Касетн.)',
+            '3m16_bt': 'ЗМ16 (Касетн. В. гальмо.)',
+            '3m16_mt': 'ЗМ16 (Касетн. М. гальмо.)',
+            '9m43_smoke': '9М43 (Димовий)'
         },
         distanceLabel: 'Ручна відстань (м, опціонально):',
         h_mortarLabel: 'Висота міномета (м):',
@@ -112,6 +140,8 @@ const translations = {
         adjustedRangeText: 'Скоригована відстань: ',
         azimuthText: 'Азимут: ',
         elevationText: 'Кут піднесення: ',
+        flightTimeText: 'Час польоту: ', // НОВЕ
+        flightTimeSeconds: 'сек.', // НОВЕ
         outOfRange: 'Поза діапазоном!',
         manualRange: 'Ручна відстань: ',
         credits: 'Powered by PRONEDROG | За підтримки Conflict In Europe',
@@ -136,6 +166,19 @@ const translations = {
             ua: 'UA (US M821 HE 81mm)',
             ru: 'RU (О-832Д 82mm)',
             grad: 'BM-21 Grad (122mm)'
+        },
+        projectileLabel: 'Projectile Type:', // NEW
+        projectileOptions: { // NEW
+            '9m22_of': '9M22 OF',
+            '9m22_of_bt': '9M22 OF (L. Brake)',
+            '9m22_of_mt': '9M22 OF (S. Brake)',
+            '9m28k': '9M28K (Cluster)',
+            '9m28k_bt': '9M28K (Cluster L. Brake)',
+            '9m28k_mt': '9M28K (Cluster S. Brake)',
+            '3m16': '3M16 (Cluster)',
+            '3m16_bt': '3M16 (Cluster L. Brake)',
+            '3m16_mt': '3M16 (Cluster S. Brake)',
+            '9m43_smoke': '9M43 (Smoke)'
         },
         distanceLabel: 'Manual Distance (m, optional):',
         h_mortarLabel: 'Mortar Height (m):',
@@ -177,6 +220,8 @@ const translations = {
         adjustedRangeText: 'Adjusted Distance: ',
         azimuthText: 'Azimuth: ',
         elevationText: 'Elevation Angle: ',
+        flightTimeText: 'Flight Time: ', // NEW
+        flightTimeSeconds: 'sec.', // NEW
         outOfRange: 'Out of Range!',
         manualRange: 'Manual Distance: ',
         credits: 'Powered by PRONEDROG | Supported by Conflict In Europe',
