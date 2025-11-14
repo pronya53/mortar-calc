@@ -708,3 +708,8 @@ a {
 label {
     text-shadow: black 0px 0px 1px;
 }
+
+/* НОВОЕ ПРАВИЛО ДЛЯ СКРЫТИЯ СПИСКА СНАРЯДОВ */
+#projectile-form-group {
+    display: none;
+}
