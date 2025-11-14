@@ -745,7 +745,7 @@ function setDevice(mode) {
         map.on('click', handleMobileClick);
 
         // Показываем уведомление
-        showNotification(translations[currentLang].deviceBtnTitle + ': ' + translations[currentLang].mobileBtn);
+showNotification(translations[currentLang].deviceBtnTitle + ': ' + translations[currentLang].pcBtn);
     } else {
         document.getElementById('mobile-buttons').classList.remove('active');
         map.off('click');
