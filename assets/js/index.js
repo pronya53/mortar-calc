@@ -23,9 +23,7 @@ function toggleHistory() {
     document.getElementById('toggleHistoryBtn').classList.toggle('active')
 }
 
-// *** ИСПРАВЛЕНИЕ #1 - Логика определения имени карты ***
 function getCurrentLayerName() {
-    // Получает 'udachne' из './assets/images/udachne.png'
     return currentLayer._url.split("/").pop().split(".")[0];
 }
 
@@ -58,7 +56,7 @@ function updateTexts() {
     document.getElementById('history-title').textContent = t.historyTitle;
     document.getElementById('info-content').innerHTML = t.infoText;
     document.getElementById('theme-label').innerHTML = t.themeLabel;
-    document.getElementById('onmap-history').textContent = t.onMapHistory + (t.layerOptions[getCurrentLayerName()] || getCurrentLayerName()); // Исправлено
+    document.getElementById('onmap-history').textContent = t.onMapHistory + (t.layerOptions[getCurrentLayerName()] || getCurrentLayerName());
     document.getElementById('toggleMenuLabel').textContent = t.toggleMenuLabel.toUpperCase();
     if (mortarMarker) mortarMarker.bindPopup(t.mortarPopup);
     if (targetMarker) targetMarker.bindPopup(t.targetPopup);
@@ -89,16 +87,20 @@ function updateMortarOptions() {
     select.options[2].text = t.mortarOptions.grad;
 }
 
+// *** ОБНОВЛЕНА ЛОГИКА ЭТОЙ ФУНКЦИИ ***
 function updateProjectileSelect() {
     const mortarType = document.getElementById('mortar').value;
     const projectileGroup = document.getElementById('projectile-form-group');
     const projectileSelect = document.getElementById('projectile');
+    const correctionGroup = document.getElementById('correction-form-group'); // Новая переменная
     const t = translations[currentLang];
 
     if (mortarType === 'grad') {
+        // Показываем и снаряды, и коррекцию
         projectileGroup.style.display = 'block';
+        correctionGroup.style.display = 'block';
+        
         projectileSelect.innerHTML = '';
-
         for (const key in t.projectileOptions) {
             const option = document.createElement('option');
             option.value = key;
@@ -106,7 +108,9 @@ function updateProjectileSelect() {
             projectileSelect.appendChild(option);
         }
     } else {
+        // Скрываем и снаряды, и коррекцию
         projectileGroup.style.display = 'none';
+        correctionGroup.style.display = 'none';
         projectileSelect.innerHTML = '';
     }
 }
@@ -409,7 +413,7 @@ function saveToHistory() {
     if (mortarMarker == null || targetMarker == null) {
         return showNotification(translations[currentLang].saveToHistoryFailed)
     }
-    guidances[getCurrentLayerName()].push({ // Исправлено
+    guidances[getCurrentLayerName()].push({
         ...tempguid,
         name: 'New points'
     })
@@ -419,7 +423,7 @@ function saveToHistory() {
 }
 
 function deleteHistoryItem(i) {
-    var gd = guidances[getCurrentLayerName()]; // Исправлено
+    var gd = guidances[getCurrentLayerName()];
     i = i.parentNode;
     i.outerHTML = '';
     var guid = JSON.parse(i.getAttribute("guid"));
@@ -438,7 +442,7 @@ function runRenameHistoryItem(event) {
     if (key === 'Enter' || key === 13) {
         var inputEl = event.target || event.srcElement;
         var parent = inputEl.parentNode;
-        var gd = guidances[getCurrentLayerName()]; // Исправлено
+        var gd = guidances[getCurrentLayerName()];
         var guid = JSON.parse(parent.getAttribute("guid"));
         const idx = gd.findIndex(item => JSON.stringify(item) === JSON.stringify(guid));
         if (idx !== -1) {
@@ -450,7 +454,7 @@ function runRenameHistoryItem(event) {
 }
 
 function runRenameHistoryItemFocus(i) {
-    var gd = guidances[getCurrentLayerName()]; // Исправлено
+    var gd = guidances[getCurrentLayerName()];
     var guid = JSON.parse(i.parentNode.getAttribute("guid"));
     const idx = gd.findIndex(item => JSON.stringify(item) === JSON.stringify(guid));
     if (idx !== -1) {
@@ -466,7 +470,13 @@ function loadHistoryItems() {
     }
 
     document.getElementById('history-list').innerHTML = "";
-    guidances[getCurrentLayerName()].forEach(m => { // Исправлено
+    
+    // Проверка, существует ли массив для этой карты
+    if (!guidances[getCurrentLayerName()]) {
+        guidances[getCurrentLayerName()] = [];
+    }
+
+    guidances[getCurrentLayerName()].forEach(m => {
         document.getElementById('history-list').innerHTML += `
         <div class="history-item" guid='${JSON.stringify(m)}'>
                 <a href="javascript:void(0)" ondblclick="renameHistoryItem(this)" onclick="loadPointsFrom(this)" class="history-text">${m.name}</a>
@@ -736,7 +746,6 @@ function setDevice(mode) {
             calculateFromMap();
         });
 
-        // *** ИСПРАВЛЕНИЕ #2 - Опечатка : вместо + ***
         showNotification(translations[currentLang].deviceBtnTitle + ': ' + translations[currentLang].pcBtn);
     }
 }
