@@ -23,13 +23,19 @@ function toggleHistory() {
     document.getElementById('toggleHistoryBtn').classList.toggle('active')
 }
 
+// *** ИСПРАВЛЕНИЕ #1 - Логика определения имени карты ***
+function getCurrentLayerName() {
+    // Получает 'udachne' из './assets/images/udachne.png'
+    return currentLayer._url.split("/").pop().split(".")[0];
+}
+
 function updateTexts() {
     const t = translations[currentLang];
     document.getElementById('nav-setup').textContent = t.navSetup;
     document.getElementById('setup-title').textContent = t.setupTitle;
     document.getElementById('mortar-label').textContent = t.mortarLabel;
     document.getElementById('projectile-label').textContent = t.projectileLabel;
-    document.getElementById('correction-label').textContent = t.correctionLabel; // НОВОЕ
+    document.getElementById('correction-label').textContent = t.correctionLabel;
     document.getElementById('distance-label').textContent = t.distanceLabel;
     document.getElementById('h_mortar-label').textContent = t.h_mortarLabel;
     document.getElementById('h_target-label').textContent = t.h_targetLabel;
@@ -52,7 +58,7 @@ function updateTexts() {
     document.getElementById('history-title').textContent = t.historyTitle;
     document.getElementById('info-content').innerHTML = t.infoText;
     document.getElementById('theme-label').innerHTML = t.themeLabel;
-    document.getElementById('onmap-history').textContent = t.onMapHistory + t.layerOptions[currentLayer._url.split(".")[1].replace("/assets/images/", "")]
+    document.getElementById('onmap-history').textContent = t.onMapHistory + (t.layerOptions[getCurrentLayerName()] || getCurrentLayerName()); // Исправлено
     document.getElementById('toggleMenuLabel').textContent = t.toggleMenuLabel.toUpperCase();
     if (mortarMarker) mortarMarker.bindPopup(t.mortarPopup);
     if (targetMarker) targetMarker.bindPopup(t.targetPopup);
@@ -91,7 +97,7 @@ function updateProjectileSelect() {
 
     if (mortarType === 'grad') {
         projectileGroup.style.display = 'block';
-        projectileSelect.innerHTML = ''; 
+        projectileSelect.innerHTML = '';
 
         for (const key in t.projectileOptions) {
             const option = document.createElement('option');
@@ -100,7 +106,7 @@ function updateProjectileSelect() {
             projectileSelect.appendChild(option);
         }
     } else {
-        projectileGroup.style.display = 'none'; 
+        projectileGroup.style.display = 'none';
         projectileSelect.innerHTML = '';
     }
 }
@@ -379,14 +385,14 @@ function interpolate(data, dist) {
     for (let i = 0; i < data.length - 1; i++) {
         if (dist >= data[i][0] && dist <= data[i + 1][0]) {
             const ratio = (dist - data[i][0]) / (data[i + 1][0] - data[i][0]);
-            
+
             const elev = data[i][1] + (data[i + 1][1] - data[i][1]) * ratio;
-            
+
             let time = null;
             if (data[i].length > 2 && data[i][2] !== null && data[i + 1][2] !== null) {
                 time = data[i][2] + (data[i + 1][2] - data[i][2]) * ratio;
             }
-            
+
             return { elevation: elev, time: time };
         }
     }
@@ -403,7 +409,7 @@ function saveToHistory() {
     if (mortarMarker == null || targetMarker == null) {
         return showNotification(translations[currentLang].saveToHistoryFailed)
     }
-    guidances[currentLayer._url.split(".")[1].replace("/assets/images/", "")].push({
+    guidances[getCurrentLayerName()].push({ // Исправлено
         ...tempguid,
         name: 'New points'
     })
@@ -413,7 +419,7 @@ function saveToHistory() {
 }
 
 function deleteHistoryItem(i) {
-    var gd = guidances[currentLayer._url.split(".")[1].replace("/assets/images/", "")]
+    var gd = guidances[getCurrentLayerName()]; // Исправлено
     i = i.parentNode;
     i.outerHTML = '';
     var guid = JSON.parse(i.getAttribute("guid"));
@@ -432,7 +438,7 @@ function runRenameHistoryItem(event) {
     if (key === 'Enter' || key === 13) {
         var inputEl = event.target || event.srcElement;
         var parent = inputEl.parentNode;
-        var gd = guidances[currentLayer._url.split(".")[1].replace("/assets/images/", "")];
+        var gd = guidances[getCurrentLayerName()]; // Исправлено
         var guid = JSON.parse(parent.getAttribute("guid"));
         const idx = gd.findIndex(item => JSON.stringify(item) === JSON.stringify(guid));
         if (idx !== -1) {
@@ -444,7 +450,7 @@ function runRenameHistoryItem(event) {
 }
 
 function runRenameHistoryItemFocus(i) {
-    var gd = guidances[currentLayer._url.split(".")[1].replace("/assets/images/", "")];
+    var gd = guidances[getCurrentLayerName()]; // Исправлено
     var guid = JSON.parse(i.parentNode.getAttribute("guid"));
     const idx = gd.findIndex(item => JSON.stringify(item) === JSON.stringify(guid));
     if (idx !== -1) {
@@ -460,7 +466,7 @@ function loadHistoryItems() {
     }
 
     document.getElementById('history-list').innerHTML = "";
-    guidances[currentLayer._url.split(".")[1].replace("/assets/images/", "")].forEach(m => {
+    guidances[getCurrentLayerName()].forEach(m => { // Исправлено
         document.getElementById('history-list').innerHTML += `
         <div class="history-item" guid='${JSON.stringify(m)}'>
                 <a href="javascript:void(0)" ondblclick="renameHistoryItem(this)" onclick="loadPointsFrom(this)" class="history-text">${m.name}</a>
@@ -503,25 +509,23 @@ map.on('click', (e) => {
     calculateFromMap();
 });
 
-// ОБНОВЛЕНО: Полностью переписана логика выбора данных и отображения результата
 function calculateFromMap() {
     if (!mortarMarker || !targetMarker) return;
-    
+
     const t = translations[currentLang];
     const mortarPos = mortarMarker.getLatLng();
     const targetPos = targetMarker.getLatLng();
-    
+
     let dx = targetPos.lng - mortarPos.lng;
     let dy = targetPos.lat - mortarPos.lat;
     let dist = Math.sqrt(dx * dx + dy * dy);
-    
+
     const azRad = Math.atan2(dx, dy);
     let azDeg = (azRad * 180 / Math.PI + 360) % 360;
-    
+
     const mortarType = document.getElementById('mortar').value;
     let data, azMils, azUaMils, azRuMils;
 
-    // Логика выбора данных
     if (mortarType === 'ua') {
         data = uaMortarData;
         azUaMils = (azDeg / 360) * 6400;
@@ -553,53 +557,41 @@ function calculateFromMap() {
         azMils = azUaMils.toFixed(0);
     }
 
-    // *** НОВАЯ ЛОГИКА РАСЧЕТА ДИСТАНЦИИ ***
-
-    // 1. Получаем все значения
     const h_mortar = parseFloat(document.getElementById('h_mortar').value) || 0;
     const h_target = parseFloat(document.getElementById('h_target').value) || 0;
     const correction = parseFloat(document.getElementById('distance-correction').value) || 0;
 
-    // 2. Считаем поправку на высоту
     const deltaH = h_target - h_mortar;
     const heightCorrection = Math.abs(deltaH) < 25 ? 0 : deltaH / 2;
     const adjustedDist = dist + (deltaH >= 0 ? heightCorrection : -heightCorrection);
 
-    // 3. Применяем ручную коррекцию (НОВОЕ)
     const correctedDist = adjustedDist + correction;
 
-    // 4. Ищем угол и время по ФИНАЛЬНОЙ дистанции
     const calcResult = interpolate(data, correctedDist);
     const elev = calcResult.elevation;
     const time = calcResult.time;
 
-    // *** НОВАЯ ЛОГИКА ОТОБРАЖЕНИЯ РЕЗУЛЬТАТА ***
-
     let elevText = elev !== null ? `${elev.toFixed(1)} mils` : t.outOfRange;
     let timeText = (time !== null && time > 0) ? `<br>${t.flightTimeText}${time.toFixed(1)} ${t.flightTimeSeconds}` : '';
-    
-    // Всегда показываем "сырую" дистанцию по карте
+
     let resultText = `
         ${t.rangeText}${dist.toFixed(0)} м<br>
     `;
 
-    // Показываем "Расчетную" дистанцию, ТОЛЬКО если она отличается от "сырой"
     if (correctedDist.toFixed(0) !== dist.toFixed(0)) {
         resultText += `${t.calcDistanceText}${correctedDist.toFixed(0)} м<br>`;
     }
 
-    // Добавляем азимут и угол
     resultText += `
         ${t.azimuthText}${azDeg.toFixed(1)}° (${azMils} mils)<br>
         ${t.elevationText}${elevText}
         ${timeText}
     `;
-    
+
     document.getElementById('result').innerHTML = resultText;
     document.getElementById('result-panel').classList.add('active');
 }
 
-// ОБНОВЛЕНО: Логика выбора данных и отображения результата
 function calculateManual() {
     const dist = parseFloat(document.getElementById('distance').value);
     if (isNaN(dist)) return;
@@ -608,7 +600,6 @@ function calculateManual() {
     const mortarType = document.getElementById('mortar').value;
     let data;
 
-    // Логика выбора данных
     if (mortarType === 'ua') {
         data = uaMortarData;
     } else if (mortarType === 'ru') {
@@ -632,42 +623,31 @@ function calculateManual() {
         data = uaMortarData;
     }
 
-    // *** НОВАЯ ЛОГИКА РАСЧЕТА ДИСТАНЦИИ ***
-
-    // 1. Получаем все значения
     const h_mortar = parseFloat(document.getElementById('h_mortar').value) || 0;
     const h_target = parseFloat(document.getElementById('h_target').value) || 0;
     const correction = parseFloat(document.getElementById('distance-correction').value) || 0;
 
-    // 2. Считаем поправку на высоту
     const deltaH = h_target - h_mortar;
     const heightCorrection = Math.abs(deltaH) < 25 ? 0 : deltaH / 2;
     const adjustedDist = dist + (deltaH >= 0 ? heightCorrection : -heightCorrection);
 
-    // 3. Применяем ручную коррекцию (НОВОЕ)
     const correctedDist = adjustedDist + correction;
 
-    // 4. Ищем угол и время по ФИНАЛЬНОЙ дистанции
     const calcResult = interpolate(data, correctedDist);
     const elev = calcResult.elevation;
     const time = calcResult.time;
 
-    // *** НОВАЯ ЛОГИКА ОТОБРАЖЕНИЯ РЕЗУЛЬТАТА ***
-
     let elevText = elev !== null ? `${elev.toFixed(1)} mils` : t.outOfRange;
     let timeText = (time !== null && time > 0) ? `<br>${t.flightTimeText}${time.toFixed(1)} ${t.flightTimeSeconds}` : '';
 
-    // Всегда показываем "сырую" дистанцию
     let resultText = `
         ${t.manualRange}${dist.toFixed(0)} м<br>
     `;
-    
-    // Показываем "Расчетную" дистанцию, ТОЛЬКО если она отличается от "сырой"
+
     if (correctedDist.toFixed(0) !== dist.toFixed(0)) {
         resultText += `${t.calcDistanceText}${correctedDist.toFixed(0)} м<br>`;
     }
 
-    // Добавляем угол
     resultText += `
         ${t.elevationText}${elevText}
         ${timeText}
@@ -686,7 +666,6 @@ function clearMap() {
     document.getElementById('result-panel').classList.remove('active');
 }
 
-// Функции главного меню
 function toggleMainMenu() {
     console.log('Toggling main menu...');
     const modal = document.getElementById('main-modal');
@@ -707,23 +686,18 @@ function toggleMainMenu() {
 
 function showMenuSection(sectionId) {
     console.log('Showing menu section:', sectionId);
-    // Скрываем все разделы
     const sections = document.querySelectorAll('.menu-section');
     sections.forEach(section => section.classList.remove('active'));
 
-    // Убираем активный класс со всех навигационных элементов
     const navItems = document.querySelectorAll('.menu-nav-item');
     navItems.forEach(item => item.classList.remove('active'));
 
-    // Показываем выбранный раздел
     document.getElementById(sectionId).classList.add('active');
 
-    // Добавляем активный класс к соответствующему навигационному элементу
     const clickedNav = document.querySelector(`[data-section="${sectionId}"]`);
     if (clickedNav) clickedNav.classList.add('active');
 }
 
-// Закрытие модального окна при клике вне его
 document.getElementById('main-modal').addEventListener('click', (e) => {
     if (e.target.id === 'main-modal') {
         toggleMainMenu();
@@ -735,7 +709,6 @@ let activeMode = null;
 
 function setDevice(mode) {
     deviceMode = mode;
-    // Закрываем главное меню
     toggleMainMenu();
 
     if (mode === 'mobile') {
@@ -744,8 +717,7 @@ function setDevice(mode) {
         map.off('click');
         map.on('click', handleMobileClick);
 
-        // Показываем уведомление
-showNotification(translations[currentLang].deviceBtnTitle + ': ' + translations[currentLang].pcBtn);
+        showNotification(translations[currentLang].deviceBtnTitle + ': ' + translations[currentLang].mobileBtn);
     } else {
         document.getElementById('mobile-buttons').classList.remove('active');
         map.off('click');
@@ -764,12 +736,11 @@ showNotification(translations[currentLang].deviceBtnTitle + ': ' + translations[
             calculateFromMap();
         });
 
-        // Показываем уведомление
-        showNotification(translations[currentLang].deviceBtnTitle + ': ' : ' + translations[currentLang].pcBtn);
+        // *** ИСПРАВЛЕНИЕ #2 - Опечатка : вместо + ***
+        showNotification(translations[currentLang].deviceBtnTitle + ': ' + translations[currentLang].pcBtn);
     }
 }
 
-// Функция уведомлений
 function showNotification(text) {
     let notification = document.getElementById('notification');
     if (!notification) {
@@ -858,5 +829,5 @@ updateLayerOptions();
 updateMortarOptions();
 updateThemeOptions();
 updateLanguageOptions();
-updateProjectileSelect(); 
+updateProjectileSelect();
 drawGrid();
