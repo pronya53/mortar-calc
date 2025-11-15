@@ -713,3 +713,22 @@ label {
 #projectile-form-group {
     display: none;
 }
+
+/* ... (весь твой текущий CSS код) ... */
+
+a {
+    color: var(--deftextfg)
+}
+
+label {
+    text-shadow: black 0px 0px 1px;
+}
+
+#projectile-form-group {
+    display: none;
+}
+
+/* НОВОЕ ПРАВИЛО ДЛЯ СКРЫТИЯ ПОЛЯ КОРРЕКЦИИ */
+#correction-form-group {
+    display: none;
+}
