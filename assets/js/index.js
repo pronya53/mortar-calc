@@ -87,16 +87,14 @@ function updateMortarOptions() {
     select.options[2].text = t.mortarOptions.grad;
 }
 
-// *** ОБНОВЛЕНА ЛОГИКА ЭТОЙ ФУНКЦИИ ***
 function updateProjectileSelect() {
     const mortarType = document.getElementById('mortar').value;
     const projectileGroup = document.getElementById('projectile-form-group');
     const projectileSelect = document.getElementById('projectile');
-    const correctionGroup = document.getElementById('correction-form-group'); // Новая переменная
+    const correctionGroup = document.getElementById('correction-form-group');
     const t = translations[currentLang];
 
     if (mortarType === 'grad') {
-        // Показываем и снаряды, и коррекцию
         projectileGroup.style.display = 'block';
         correctionGroup.style.display = 'block';
         
@@ -108,7 +106,6 @@ function updateProjectileSelect() {
             projectileSelect.appendChild(option);
         }
     } else {
-        // Скрываем и снаряды, и коррекцию
         projectileGroup.style.display = 'none';
         correctionGroup.style.display = 'none';
         projectileSelect.innerHTML = '';
@@ -550,9 +547,6 @@ function calculateFromMap() {
             case '9m22_of': data = grad_9m22_of_data; break;
             case '9m22_of_bt': data = grad_9m22_of_bt_data; break;
             case '9m22_of_mt': data = grad_9m22_of_mt_data; break;
-            case '9m28k': data = grad_9m28k_data; break;
-            case '9m28k_bt': data = grad_9m28k_bt_data; break;
-            case '9m28k_mt': data = grad_9m28k_mt_data; break;
             case '3m16': data = grad_3m16_data; break;
             case '3m16_bt': data = grad_3m16_bt_data; break;
             case '3m16_mt': data = grad_3m16_mt_data; break;
@@ -620,9 +614,6 @@ function calculateManual() {
             case '9m22_of': data = grad_9m22_of_data; break;
             case '9m22_of_bt': data = grad_9m22_of_bt_data; break;
             case '9m22_of_mt': data = grad_9m22_of_mt_data; break;
-            case '9m28k': data = grad_9m28k_data; break;
-            case '9m28k_bt': data = grad_9m28k_bt_data; break;
-            case '9m28k_mt': data = grad_9m28k_mt_data; break;
             case '3m16': data = grad_3m16_data; break;
             case '3m16_bt': data = grad_3m16_bt_data; break;
             case '3m16_mt': data = grad_3m16_mt_data; break;
