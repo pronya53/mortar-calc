@@ -12,15 +12,12 @@ const translations = {
             '9m22_of': '9М22 ОФ',
             '9m22_of_bt': '9М22 ОФ (Б. торм.)',
             '9m22_of_mt': '9М22 ОФ (М. торм.)',
-            '9m28k': '9М28К (Кассетн.)',
-            '9m28k_bt': '9М28К (Кассетн. Б. торм.)',
-            '9m28k_mt': '9М28К (Кассетн. М. торм.)',
             '3m16': 'ЗМ16 (Кассетн.)',
             '3m16_bt': 'ЗМ16 (Кассетн. Б. торм.)',
             '3m16_mt': 'ЗМ16 (Кассетн. М. торм.)',
             '9m43_smoke': '9М43 (Дымовой)'
         },
-        correctionLabel: 'Коррекция дистанции (м):', // НОВОЕ
+        correctionLabel: 'Коррекция дистанции (м):',
         distanceLabel: 'Ручное расстояние (м, опционально):',
         h_mortarLabel: 'Высота миномета (м):',
         h_targetLabel: 'Высота цели (м):',
@@ -59,7 +56,7 @@ const translations = {
         navInfo: 'Информация',
         rangeText: 'Расстояние: ',
         adjustedRangeText: 'Скорректированное расстояние: ',
-        calcDistanceText: 'Расчетная дист.: ', // НОВОЕ
+        calcDistanceText: 'Расчетная дист.: ',
         azimuthText: 'Азимут: ',
         elevationText: 'Угол возвышения: ',
         flightTimeText: 'Время полета: ',
@@ -94,15 +91,12 @@ const translations = {
             '9m22_of': '9М22 ОФ',
             '9m22_of_bt': '9М22 ОФ (В. гальмо.)',
             '9m22_of_mt': '9М22 ОФ (М. гальмо.)',
-            '9m28k': '9М28К (Касетн.)',
-            '9m28k_bt': '9М28К (Касетн. В. гальмо.)',
-            '9m28k_mt': '9М28К (Касетн. М. гальмо.)',
             '3m16': 'ЗМ16 (Касетн.)',
             '3m16_bt': 'ЗМ16 (Касетн. В. гальмо.)',
             '3m16_mt': 'ЗМ16 (Касетн. М. гальмо.)',
             '9m43_smoke': '9М43 (Димовий)'
         },
-        correctionLabel: 'Корекція дистанції (м):', // НОВЕ
+        correctionLabel: 'Корекція дистанції (м):',
         distanceLabel: 'Ручна відстань (м, опціонально):',
         h_mortarLabel: 'Висота міномета (м):',
         h_targetLabel: 'Висота цілі (м):',
@@ -141,7 +135,7 @@ const translations = {
         navInfo: 'Інформація',
         rangeText: 'Відстань: ',
         adjustedRangeText: 'Скоригована відстань: ',
-        calcDistanceText: 'Розрахункова дист.: ', // НОВЕ
+        calcDistanceText: 'Розрахункова дист.: ',
         azimuthText: 'Азимут: ',
         elevationText: 'Кут піднесення: ',
         flightTimeText: 'Час польоту: ',
@@ -176,15 +170,12 @@ const translations = {
             '9m22_of': '9M22 OF',
             '9m22_of_bt': '9M22 OF (L. Brake)',
             '9m22_of_mt': '9M22 OF (S. Brake)',
-            '9m28k': '9M28K (Cluster)',
-            '9m28k_bt': '9M28K (Cluster L. Brake)',
-            '9m28k_mt': '9M28K (Cluster S. Brake)',
             '3m16': '3M16 (Cluster)',
             '3m16_bt': '3M16 (Cluster L. Brake)',
             '3m16_mt': '3M16 (Cluster S. Brake)',
             '9m43_smoke': '9M43 (Smoke)'
         },
-        correctionLabel: 'Distance Correction (m):', // NEW
+        correctionLabel: 'Distance Correction (m):',
         distanceLabel: 'Manual Distance (m, optional):',
         h_mortarLabel: 'Mortar Height (m):',
         h_targetLabel: 'Target Height (m):',
@@ -223,7 +214,7 @@ const translations = {
         navInfo: 'Information',
         rangeText: 'Distance: ',
         adjustedRangeText: 'Adjusted Distance: ',
-        calcDistanceText: 'Calc. Distance: ', // NEW
+        calcDistanceText: 'Calc. Distance: ',
         azimuthText: 'Azimuth: ',
         elevationText: 'Elevation Angle: ',
         flightTimeText: 'Flight Time: ',
